@@ -213,12 +213,14 @@ def routB(time,trialtime,*args):
 mouse = event.Mouse()
 def routOK(*stims):
     running = True
-    [questStim,lines,pStim,tStim] = stims
+    [questStim,lines,pStim,tStim,rankStims] = stims
     while running:
         for i,p in pStim.items():
             p.draw()
         for i,t in tStim.items():
             t.draw()
+        for r in rankStims:
+            r.draw()
         for i,l in lines.items():
             for j,ll in l.items():
                 ll.draw()
@@ -238,13 +240,6 @@ def routOK(*stims):
     return ret
 
 def routC(time,trials,*args):
-    questStim = visual.TextStim(win=win, name='endText',
-        text='If this looks correct to you, please press \'k\', otherwise press \'r\'',
-        font='Arial',
-        units='height', pos=[0, 0], height=0.05, wrapWidth=None, ori=0,
-        color='white', colorSpace='rgb', opacity=1,
-        languageStyle='LTR',
-        depth=0.0);
 
     party = args[0]
     people = os.listdir("party"+str(party)+"/people/")[:5]
@@ -274,6 +269,17 @@ def routC(time,trials,*args):
         for j in range(3):
             lines[i][j] = visual.Rect(win, fillColor='white',pos=[l+m for l,m in zip(tStim[i].pos,[0.25+0.25*j,0])],size=[0.1,0.1])
             linetKeys[i][j] = None
+
+    rankStims = [visual.TextStim(win,"{0:d}".format(j),pos=[l+m for l,m in zip(tStim[len(people)-1].pos,[0.25+0.25*j,0.1])], height=0.05, wrapWidth=None, ori=0,
+        color='white', colorSpace='rgb', opacity=1, languageStyle='LTR', depth=0.0,font='Arial', units='height') for j in range(3)]
+    questStim = visual.TextStim(win=win, name='endText',
+        text='If this looks correct to you, please press \'k\', otherwise press \'r\'',
+        font='Arial',
+        units='height', pos=[tStim[0].pos[0]+0.5, tStim[0].pos[1]-0.15], height=0.05, wrapWidth=None, ori=0,
+        color='white', colorSpace='rgb', opacity=1,
+        languageStyle='LTR',
+        depth=0.0);
+
     c = ['red','green','blue']
     mousePersonIndex = -1
     mouseTaskIndex = -1
@@ -287,6 +293,8 @@ def routC(time,trials,*args):
             pStim[key].draw()
         for key in tStim.keys():
             tStim[key].draw()
+        for r in rankStims:
+            r.draw()
         if mouse.getPressed()[0] == 1 and mouseIsDown == False:
             print("Mouse Clicked",mouse.getPressed())
             mouseIsDown = True
@@ -354,7 +362,7 @@ def routC(time,trials,*args):
         for i,l in linetKeys.items():
             clines += sum([1 for Z in l.values() if not Z is None])
         if clines == 3*len(tasks):
-            keys = routOK(questStim,lines,pStim,tStim)
+            keys = routOK(questStim,lines,pStim,tStim,rankStims)
             if keys == 'r':
                 for i in range(len(tasks)):
                     lineKeys[i] = []
@@ -630,7 +638,7 @@ def routText(fill):
 
 routText("We will show you groups of images regarding a group of friends. Please pay attention to these sets of images as you will need to assign roles to these friends later for a _birthday party_")
 routA(1,1)
-lStim = routB(1,.1,1,1)
+lStim = routB(1,1,1,1)
 routText("You will now plan the birthday party")
 lineKeys,planTime,planConf,plancRT = routC(1,10,1)
 
