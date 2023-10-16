@@ -74,34 +74,53 @@ def routA(time, trials):
     return 
 
 def routB(time,trialtime,*args):
-    party = args[0]
+    party = "party" + str(args[0])
     iterations = args[1]
-    people = os.listdir("party"+str(party)+"/people/")[:5]
+    people = os.listdir(party+"/people/")[:5]
     seen = [0 for i in range(len(people))]
 
-    other = os.listdir("party"+str(party)+"/other/")
-    situation = ["party"+str(party)+"/socialSit/"+s for s in shuffler(os.listdir("party"+str(party)+"/socialSit/"))]
+    other = os.listdir(party+"/other/")
+    situation = [party+"/socialSit/"+s for s in shuffler(os.listdir(party+"/socialSit/"))]
     situation = shuffler(situation)
     sitimages = [os.listdir(s) for s in situation]
 
-    location = ["locations/"+s for s in shuffler(os.listdir("locations/"))]
+    location = ["{0}/locations/{1}".format(party,s) for s in shuffler(os.listdir(party+"/locations/"))]
     location = shuffler(location)
     locimages = [os.listdir(s) for s in location]
 
-    socgroups = ["socgroups/"+s for s in shuffler(os.listdir("socgroups/"))]
+    socgroups = ["{0}/socgroups/{1}".format(party,s) for s in shuffler(os.listdir(party+"/socgroups/"))]
     socgroups = shuffler(socgroups)
-
     socimages = [os.listdir(s) for s in socgroups]
 
     weather = ["weather/"+s for s in shuffler(os.listdir("weather/"))]
     weather = shuffler(weather)
+    persweather = [[] for i in range(5)]
+    for i in range(5):
+        for j in range(2):
+            ind = getRandInt(0,len(weather))
+            persweather[i] += [weather[ind]]
+            del weather[ind] 
 
     lStim = []
     trials = len(people)
     perm = [i for i in range(len(weather))]
     locs = [True for i in range(len(socgroups))]
     socs = [True for i in range(len(socgroups))]
+    wets = [True for i in range(len(socgroups))]
     sits = [True for i in range(len(socgroups))]
+
+    persons =  [party+"/people/"+people[s] for s in range(5)] 
+    locs = [[] for i in range(5)]
+    sits = [[] for i in range(5)]
+    groups = [[] for i in range(5)]
+    weats = [[] for i in range(5)]
+    for i in range(5):
+        for j in range(2):
+            locs[i] += [location[i]+"/"+locimages[i][j]]
+            sits[i] += [situation[i]+"/"+sitimages[i][j]]
+            groups[i] += [socgroups[i]+"/"+socimages[i][j]]
+            weats[i] += [persweather[i][j]]
+    Stims = [persons,sits,groups,locs,weats]
     for t in range(trials*2):
         selectperson = getRandInt(0,len(people)-1)
         while seen[selectperson] >= 2:
@@ -113,10 +132,11 @@ def routB(time,trialtime,*args):
             del locimages[selectperson]
             del socgroups[selectperson]
             del socimages[selectperson]
+            del persweather[selectperson]
 
             selectperson = getRandInt(0,len(people)-1)
         seen[selectperson] += 1
-        person = "party"+str(party)+"/people/"+people[selectperson]
+        person = party+"/people/"+people[selectperson]
         Person = visual.ImageStim(win, image=person)
         if sits[selectperson]:
             indsit = getRandInt(0,2)
@@ -136,6 +156,12 @@ def routB(time,trialtime,*args):
         else:
             indsoc = indsoc ^ 1
 
+        if wets[selectperson]:
+            indwet = getRandInt(0,2)
+            wets[selectperson]= False
+        else:
+            indwet = indsoc ^ 1
+
         socim = situation[selectperson]+"/"+sitimages[selectperson][indsit]
         SocialSit = visual.ImageStim(win,image=socim)
         perm = shuffler(perm)
@@ -143,9 +169,10 @@ def routB(time,trialtime,*args):
         sgroupim = socgroups[selectperson]+"/"+socimages[selectperson][indsoc]
         SocialGroup = visual.ImageStim(win,image=sgroupim)
         Location = visual.ImageStim(win,image=locim)
-        Weather = visual.ImageStim(win,image=weather[perm[0]])
-        lStim += [[person, socim,sgroupim,locim,weather[perm[0]]]]
-        for this_stim in [Person, SocialSit,SocialGroup, Location,Weather]:
+        wetim = persweather[selectperson][indwet]
+        Weather = visual.ImageStim(win,image=wetim)
+        lStim += [[person, socim,sgroupim,locim,wetim]]
+        for this_stim in [Person]:#, SocialSit,SocialGroup, Location,Weather]:
             this_stim.size = [.25, .25]
         for this_stim in [SocialSit, SocialGroup,Location,Weather]:
             this_stim.size = [.33, .33]
@@ -168,7 +195,7 @@ def routB(time,trialtime,*args):
                 if keys == 'escape':
                     core.quit()
                 if keys == 'k':
-                    return lStim
+                    return Stims
 
             win.flip()
         routA(time,1)
@@ -204,11 +231,11 @@ def routB(time,trialtime,*args):
                     if keys == 'escape':
                         core.quit()
                     if keys == 'k':
-                        return lStim
+                        return Stims
                 win.flip()
             routA(time,1)
 
-    return lStim
+    return Stims
 
 mouse = event.Mouse()
 def routOK(*stims):
@@ -402,167 +429,143 @@ def routC(time,trials,*args):
     return lineKeys,RT,confidence,cRT
 
 def routD(fixtime,trials,*args):
-    party = args[0]
-    lStims = args[1]
-    people = os.listdir("party"+str(party)+"/people/")[:5]
-    seen = [0 for i in range(len(people))]
+    party = "party{0:d}".format(args[0])
+    [people,situation,sgroup,location,weather] =  args[1]
 
-    other = os.listdir("party"+str(party)+"/other/")
-
-    situation = ["party"+str(party)+"/socialSit/"+s for s in shuffler(os.listdir("party"+str(party)+"/socialSit/"))]
-    sitimages = [os.listdir(s) for s in situation]
-    sitfiles = []
-    for i,j in zip(sitimages,situation):
-            for k in i:
-                sitfiles += [j + "/" + k]
-
-    location = ["locations/"+s for s in shuffler(os.listdir("locations/"))]
-    locimages = [os.listdir(s) for s in location]
-    locfiles = []
-    for i,j in zip(locimages,location):
-        for k in i:
-            locfiles += [j + "/" + k]
-
-    socgroup = ["socgroups/"+s for s in shuffler(os.listdir("socgroups/"))]
-    sgrupimages = [os.listdir(s) for s in socgroup]
-    socfiles = []
-    for i,j in zip(sgrupimages,socgroup):
-        for k in i:
-            socfiles += [j + "/" + k]
-
-    weather = ["weather/"+s for s in shuffler(os.listdir("weather/"))]
-    # 0 is no corruption, 1 is social corruption, 2 is nonsocial corruption
-    corruption = shuffler([0+getRandInt(0,2) for t in range(len(lStims))] + [2+getRandInt(0,2) for t in range(len(lStims))])
+    # Person Select
+    pind = shuffler([getRandInt(0,5) for i in range(trials)])
+    # Episode Select
+    eind = shuffler([getRandInt(0,2) for i in range(trials)])
+    # Reference cue
+    corruption = shuffler([getRandInt(0,4) for i in range(trials)])
+    # Query cues
     otherchoice = shuffler([getRandInt(0,3) for i in range(len(corruption))])
+    # Between or within person corruption
+    bwgroup = shuffler([getRandInt(0,2) for i in range(len(corruption))])
     print(corruption)
     print(otherchoice)
     choices = []
     confidences = []
     RTs = []
     confRTs = []
-
-    for t in range(len(lStims)*3):
-        if t % len(lStims) == 0:
-            lStims = shuffler(lStims)
-        tind = t%len(lStims)
+    for t,(p,e,corr,oc,bw) in enumerate(zip(pind,eind,corruption,otherchoice,bwgroup)):
         leftorRight = getRandInt(0,2)*2-1
         Stims = []
-
         c = 0
-        if corruption[tind] == 0:
-            Stims += [visual.ImageStim(win,image=lStims[tind][1])]
-            if otherchoice[tind] == 0:
-                socfiles = shuffler(socfiles)
-                choose = socfiles[c]
-                while choose == lStims[tind][2]:
-                    c += 1
-                    choose = socfiles[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][2])]
+        if corr == 0:
+            Stims += [visual.ImageStim(win,image=situation[p][e])]
+            if oc == 0:
+                if bw == 1:
+                    choices = [sgroup[i][j] for i in range(len(sgroup)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = sgroup[p][e^1]
+                Stims += [visual.ImageStim(win,image=sgroup[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-            elif otherchoice[tind] == 1:
-                locfiles = shuffler(locfiles)
-                choose = locfiles[c]
-                while choose == lStims[tind][3]:
-                    c += 1
-                    choose = locfiles[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][3])]
+            elif oc == 1:
+                if bw == 1:
+                    choices = [location[i][j] for i in range(len(location)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = location[p][e^1]
+                Stims += [visual.ImageStim(win,image=location[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-            elif otherchoice[tind] == 2:
-                weather = shuffler(weather)
-                choose = weather[c]
-                while choose == lStims[tind][4]:
-                    c += 1
-                    choose = weather[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][4])]
+            elif oc == 2:
+                if bw == 1:
+                    choices = [weather[i][j] for i in range(len(weather)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = weather[p][e^1]
+                Stims += [visual.ImageStim(win,image=weather[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-        elif corruption[tind] == 1:
-            Stims += [visual.ImageStim(win,image=lStims[tind][2])]
-            if otherchoice[tind] == 0:
-                sitfiles = shuffler(sitfiles)
-                choose = sitfiles[c]
-                while choose == lStims[tind][1]:
-                    c += 1
-                    choose = sitfiles[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][1])]
+        elif corr == 1:
+            Stims += [visual.ImageStim(win,image=sgroup[p][e])]
+            if oc == 0:
+                if bw == 1:
+                    choices = [situation[i][j] for i in range(len(situation)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = situation[p][e^1]
+                Stims += [visual.ImageStim(win,image=situation[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-            elif otherchoice[tind] == 1:
-                locfiles = shuffler(locfiles)
-                choose = locfiles[c]
-                while choose == lStims[tind][3]:
-                    c += 1
-                    choose = locfiles[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][3])]
+            elif oc == 1:
+                if bw == 1:
+                    choices = [location[i][j] for i in range(len(location)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = location[p][e^1]
+                Stims += [visual.ImageStim(win,image=location[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-            elif otherchoice[tind] == 2:
-                weather = shuffler(weather)
-                choose = weather[c]
-                while choose == lStims[tind][4]:
-                    c += 1
-                    choose = weather[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][4])]
+            elif oc == 2:
+                if bw == 1:
+                    choices = [weather[i][j] for i in range(len(weather)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = weather[p][e^1]
+                Stims += [visual.ImageStim(win,image=weather[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-        elif corruption[tind] == 2:
-            Stims += [visual.ImageStim(win,image=lStims[tind][3])]
-            if otherchoice[tind] == 0:
-                sitfiles = shuffler(sitfiles)
-                choose = sitfiles[c]
-                while choose == lStims[tind][1]:
-                    c += 1
-                    choose = sitfiles[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][1])]
+        elif corr == 2:
+            Stims += [visual.ImageStim(win,image=location[p][e])]
+            if oc == 0:
+                if bw == 1:
+                    choices = [situation[i][j] for i in range(len(situation)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = situation[p][e^1]
+                Stims += [visual.ImageStim(win,image=situation[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-            elif otherchoice[tind] == 1:
-                socfiles = shuffler(socfiles)
-                choose = socfiles[c]
-                while choose == lStims[tind][2]:
-                    c += 1
-                    choose = socfiles[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][2])]
+            elif oc == 1:
+                if bw == 1:
+                    choices = [sgroup[i][j] for i in range(len(sgroup)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = sgroup[p][e^1]
+                Stims += [visual.ImageStim(win,image=sgroup[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-            elif otherchoice[tind] == 2:
-                weather = shuffler(weather)
-                choose = weather[c]
-                while choose == lStims[tind][4]:
-                    c += 1
-                    choose = weather[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][4])]
+            elif oc == 2:
+                if bw == 1:
+                    choices = [weather[i][j] for i in range(len(weather)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = weather[p][e^1]
+                Stims += [visual.ImageStim(win,image=weather[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-        elif corruption[tind] == 3:
-            Stims += [visual.ImageStim(win,image=lStims[tind][4])]
-            if otherchoice[tind] == 0:
-                sitfiles = shuffler(sitfiles)
-                choose = sitfiles[c]
-                while choose == lStims[tind][1]:
-                    c += 1
-                    choose = sitfiles[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][1])]
+        elif corr == 3:
+            Stims += [visual.ImageStim(win,image=weather[p][e])]
+            if oc == 0:
+                if bw == 1:
+                    choices = [situation[i][j] for i in range(len(situation)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = situation[p][e^1]
+                Stims += [visual.ImageStim(win,image=situation[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-            elif otherchoice[tind] == 1:
-                socfiles = shuffler(socfiles)
-                choose = socfiles[c]
-                while choose == lStims[tind][2]:
-                    c += 1
-                    choose = socfiles[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][2])]
+            elif oc == 1:
+                if bw == 1:
+                    choices = [sgroup[i][j] for i in range(len(sgroup)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = sgroup[p][e^1]
+                Stims += [visual.ImageStim(win,image=sgroup[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
-            elif otherchoice[tind] == 2:
-                locfiles = shuffler(locfiles)
-                choose = locfiles[c]
-                while choose == lStims[tind][3]:
-                    c += 1
-                    choose = locfiles[c]
-                Stims += [visual.ImageStim(win,image=lStims[tind][3])]
+            elif oc == 2:
+                if bw == 1:
+                    choices = [location[i][j] for i in range(len(location)) for j in range(2) if i != p]
+                    choose = choices[getRandInt(0,len(choices))]
+                else:
+                    choose = location[p][e^1]
+                Stims += [visual.ImageStim(win,image=location[p][e])]
                 Stims += [visual.ImageStim(win,image=choose)]
 
         for this_stim in Stims:
             this_stim.size = [.33, .33]
         Stims[0].pos = Bim_positions[0]
         if leftorRight == -1:
-            Stims[1].pos = Bim_positions[4]
-            Stims[2].pos = Bim_positions[1]
+            Stims[1].pos = [i+j for i,j in zip(Bim_positions[4],[-0.1,0])]
+            Stims[2].pos = [i+j for i,j in zip(Bim_positions[1],[0.1,0])]
         else:
-            Stims[1].pos = Bim_positions[1]
-            Stims[2].pos = Bim_positions[4]
+            Stims[1].pos = [i+j for i,j in zip(Bim_positions[1],[0.1,0])]
+            Stims[2].pos = [i+j for i,j in zip(Bim_positions[4],[-0.1,0])]
         choice = 0
         time = clock.getTime()
         while choice == 0:
@@ -588,7 +591,7 @@ def routD(fixtime,trials,*args):
         confRTs += [cRT]
         routA(fixtime,1)
         
-    return corruption,otherchoice,choices,confidences,RTs,confRTs
+    return corruption,otherchoice,choices,bwgroup,confidences,RTs,confRTs
 
 def routDc():
     notReady = True
@@ -643,7 +646,7 @@ routText("You will now plan the birthday party")
 lineKeys,planTime,planConf,plancRT = routC(1,10,1)
 
 routText("We will now present you stimuli you saw previously. Press right arrow if the images match together. Press left arrow if they do not")
-corrupt,other,choices,conf,RT,confRT = routD(1,10,1,lStim)
+corrupt,other,choices,bw,conf,RT,confRT = routD(1,10,1,lStim)
 with open('data/{0}_Planning.txt'.format(expInfo['participant']),'w') as f:
     f.writelines(str(planTime) + "," + str(planConf) + "," + str(plancRT) + "\n")
     for key,item in lineKeys.items():
@@ -654,6 +657,7 @@ with open('data/{0}_Recall.txt'.format(expInfo['participant']),'w') as f:
     f.writelines(",".join([str(c) for c in corrupt]) + "\n")
     f.writelines(",".join([str(c) for c in other]) + "\n")
     f.writelines(",".join([str(c) for c in choices]) + "\n")
+    f.writelines(",".join([str(c) for c in bw]) + "\n")
     f.writelines(",".join([str(c) for c in conf]) + "\n")
     f.writelines(",".join([str(c) for c in RT]) + "\n")
     f.writelines(",".join([str(c) for c in confRT]) + "\n")
