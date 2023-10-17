@@ -266,6 +266,13 @@ def routOK(*stims):
         win.flip()
     return ret
 
+def checkTs(ind,db):
+    ret = -1
+    for key,item in db.items():
+        if item == ind:
+            return key
+    return ret 
+
 def routC(time,trials,*args):
 
     party = args[0]
@@ -286,7 +293,7 @@ def routC(time,trials,*args):
     lines = {}
     personRank = {}
     for i in range(len(tasks)):
-        lineKeys[i] = []
+        lineKeys[i] = {}
         personRank[i] = [False,False,False] 
         lines[i] = {}
     for i in range(len(people)):
@@ -356,31 +363,24 @@ def routC(time,trials,*args):
                             break
                     if key != -1 and rank != -1:
                         break
-                if key != -1 and rank != -1 and not personRank[mousePersonIndex][rank]:
-                    if len(lineKeys[mousePersonIndex])< 3:
-                        if not any([key == k for k in lineKeys[mousePersonIndex]]):
-                            lineKeys[mousePersonIndex] += [key]
-                            personRank[mousePersonIndex][rank] = True
-                            linetKeys[key][rank] = mousePersonIndex
-                            lines[key][rank] = visual.ImageStim(win, personIms[mousePersonIndex],pos=lines[key][rank].pos,size=[0.1,0.1])
-                            print(key,"to",mousePersonIndex)
-                        else:
-                            print("This person already has this role allocated")
-                    else:
-                        C = 0
-                        for k,it in lines.items():
-                            C += sum([1 for Z in it.values() if not Z is None])
-                        if C >= len(lineKeys)*3-2:
-                                if not any([key == k for k in lineKeys[mousePersonIndex]]):
-                                    lineKeys[mousePersonIndex] += [key]
-                                    linetKeys[key][rank] = mousePersonIndex
-                                    personRank[mousePersonIndex][rank] = True
-                                    lines[key][rank] = visual.ImageStim(win, personIms[mousePersonIndex],pos=lines[key][rank].pos,size=[0.1,0.1])
-                                    print(key,"to",mousePersonIndex)
-                                else:
-                                    print("This task is already has allocated to this person")
-                        else:
-                            print("This person already has 3 tasks",C,len(lineKeys)*3-2)
+                if key != -1 and rank != -1:
+                    pastrank = checkTs(mousePersonIndex, linetKeys[key])
+                    if rank in lineKeys[mousePersonIndex]:
+                        pastkey = lineKeys[mousePersonIndex][rank] 
+                        del lineKeys[mousePersonIndex][rank]
+                        if rank in linetKeys[pastkey]:
+                            del linetKeys[pastkey][rank]
+                        lines[pastkey][rank] = visual.Rect(win, fillColor='white',pos=[l+m for l,m in zip(tStim[pastkey].pos,[0.25+0.25*rank,0])],size=[0.1,0.1])
+                    elif pastrank != -1:
+                        if pastrank in linetKeys[key]:
+                            del linetKeys[key][pastrank]
+                        if pastrank in lineKeys[mousePersonIndex]:
+                            del lineKeys[mousePersonIndex][pastrank]
+                        lines[key][pastrank] = visual.Rect(win, fillColor='white',pos=[l+m for l,m in zip(tStim[key].pos,[0.25+0.25*pastrank,0])],size=[0.1,0.1])
+                    lineKeys[mousePersonIndex][rank] = key
+                    linetKeys[key][rank] = mousePersonIndex
+                    lines[key][rank] = visual.ImageStim(win, personIms[mousePersonIndex],pos=lines[key][rank].pos,size=[0.1,0.1])
+                    print(key,"to",mousePersonIndex)
                 mousePersonIndex = -1
         for _,it in lines.items():
             for _,itt in it.items(): 
@@ -392,8 +392,7 @@ def routC(time,trials,*args):
             keys = routOK(questStim,lines,pStim,tStim,rankStims)
             if keys == 'r':
                 for i in range(len(tasks)):
-                    lineKeys[i] = []
-                    personRank[i] = [False,False,False]
+                    lineKeys[i] = {}
                     lines[i] = {}
                 for i in range(len(people)):
                     linetKeys[i] = {}
@@ -414,8 +413,7 @@ def routC(time,trials,*args):
                 running = False
             if keys == 'r':
                 for i in range(len(tasks)):
-                    lineKeys[i] = []
-                    personRank[i] = [False,False,False]
+                    lineKeys[i] = {}
                     lines[i] = {}
                 for i in range(len(people)):
                     linetKeys[i] = {}
@@ -425,7 +423,8 @@ def routC(time,trials,*args):
                         linetKeys[i][j] = None
     RT = clock.getTime() - tBeg
     confidence,cRT = routDc()
-
+    for key,item in lineKeys.items():
+        lineKeys[key] = dict(sorted(item.items()))
     return lineKeys,RT,confidence,cRT
 
 def routD(fixtime,trials,*args):
