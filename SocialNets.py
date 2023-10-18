@@ -121,8 +121,7 @@ def routB(time,trialtime,*args):
             weats[i] += [persweather[i][j]]
     Stims = [persons,sits,groups,locs,weats]
     for t in range(trials*2):
-        selectperson = getRandInt(0,len(people)-1)
-        while seen[selectperson] >= 2:
+        while seen[selectperson := getRandInt(0,len(people)-1)] >= 2:
             del people[selectperson]
             del seen[selectperson]
             del situation[selectperson]
@@ -133,7 +132,6 @@ def routB(time,trialtime,*args):
             del socimages[selectperson]
             del persweather[selectperson]
 
-            selectperson = getRandInt(0,len(people)-1)
         seen[selectperson] += 1
         person = party+"/people/"+people[selectperson]
         Person = visual.ImageStim(win, image=person)
@@ -363,14 +361,13 @@ def routC(time,trials,*args):
                     if key != -1 and rank != -1:
                         break
                 if key != -1 and rank != -1:
-                    pastrank = checkTs(mousePersonIndex, linetKeys[key])
                     if rank in lineKeys[mousePersonIndex]:
                         pastkey = lineKeys[mousePersonIndex][rank] 
                         del lineKeys[mousePersonIndex][rank]
                         if rank in linetKeys[pastkey]:
                             del linetKeys[pastkey][rank]
                         lines[pastkey][rank] = visual.Rect(win, fillColor='white',pos=[l+m for l,m in zip(tStim[pastkey].pos,[0.25+0.25*rank,0])],size=[0.1,0.1])
-                    elif pastrank != -1:
+                    elif (pastrank := checkTs(mousePersonIndex, linetKeys[key])) != -1:
                         if pastrank in linetKeys[key]:
                             del linetKeys[key][pastrank]
                         if pastrank in lineKeys[mousePersonIndex]:
