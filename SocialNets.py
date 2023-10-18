@@ -79,7 +79,6 @@ def routB(time,trialtime,*args):
     people = os.listdir(party+"/people/")[:5]
     seen = [0 for i in range(len(people))]
 
-    other = os.listdir(party+"/other/")
     situation = [party+"/socialSit/"+s for s in shuffler(os.listdir(party+"/socialSit/"))]
     situation = shuffler(situation)
     sitimages = [os.listdir(s) for s in situation]
