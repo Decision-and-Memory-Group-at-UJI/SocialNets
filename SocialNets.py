@@ -43,10 +43,14 @@ clock = core.Clock()
 FR = 60
 
 Bim_positions = {0: (0, 0.25),
-                1: (0.2, -0.25),
-                2: (-0.6, -0.25),
-                3: (0.6, -0.25),
-                4: (-0.2, -0.25)}
+                1: (0.6, -0.25),
+                2: (-0.0, -0.25),
+                3: (-0.6, -0.25)}
+
+
+BLim_positions = {1: (0.6, -0.45),
+                2: (-0.0, -0.45),
+                3: (-0.6, -0.45)}
 
 Cpim_positions = {}
 for i,j in enumerate([(k-2)/7.5 for k in range(5)]):
@@ -94,6 +98,10 @@ def routB(time,trialtime,*args):
     weather = ["weather/"+s for s in shuffler(os.listdir("weather/"))]
     weather = shuffler(weather)
     persweather = [[] for i in range(5)]
+    labels = ["Situation","Location","Group"]
+    TextStims = []
+    for i,t in enumerate(labels):
+        TextStims += [visual.TextStim(win,text=t,height=0.05,pos=BLim_positions[i+1],name=t)]
     for i in range(5):
         for j in range(2):
             ind = getRandInt(0,len(weather))
@@ -113,13 +121,14 @@ def routB(time,trialtime,*args):
     sits = [[] for i in range(5)]
     groups = [[] for i in range(5)]
     weats = [[] for i in range(5)]
+    indices = [i for i in range(1,4)]
     for i in range(5):
         for j in range(2):
             locs[i] += [location[i]+"/"+locimages[i][j]]
             sits[i] += [situation[i]+"/"+sitimages[i][j]]
             groups[i] += [socgroups[i]+"/"+socimages[i][j]]
             weats[i] += [persweather[i][j]]
-    Stims = [persons,sits,groups,locs,weats]
+    Stims = [[s for s in p] for p in [persons,sits,groups,locs,weats]]
     for t in range(trials*2):
         while seen[selectperson := getRandInt(0,len(people)-1)] >= 2:
             del people[selectperson]
@@ -167,17 +176,18 @@ def routB(time,trialtime,*args):
         SocialGroup = visual.ImageStim(win,image=sgroupim)
         Location = visual.ImageStim(win,image=locim)
         wetim = persweather[selectperson][indwet]
-        Weather = visual.ImageStim(win,image=wetim)
         lStim += [[person, socim,sgroupim,locim,wetim]]
         for this_stim in [Person]:#, SocialSit,SocialGroup, Location,Weather]:
             this_stim.size = [.25, .25]
-        for this_stim in [SocialSit, SocialGroup,Location,Weather]:
+        for this_stim in [SocialSit, SocialGroup,Location]:
             this_stim.size = [.33, .33]
         Person.pos = Bim_positions[0]
-        SocialSit.pos = Bim_positions[1]
-        Location.pos = Bim_positions[2]
-        Weather.pos = Bim_positions[3]
-        SocialGroup.pos = Bim_positions[4]
+        if t > 5:
+            indices = shuffler(indices)
+        SocialSit.pos = Bim_positions[indices[0]]
+        Location.pos = Bim_positions[indices[1]]
+        SocialGroup.pos = Bim_positions[indices[2]]
+
         tBegin = clock.getTime()
         while clock.getTime() - tBegin < trialtime:
             Person.draw()
@@ -185,7 +195,10 @@ def routB(time,trialtime,*args):
             SocialSit.draw()
             SocialGroup.draw()
             Location.draw()
-            Weather.draw()           
+            if t < 5:
+                for T in TextStims:
+                    T.draw()
+
             keys = ready.getKeys(keyList=None, waitRelease=False)
             if len(keys) > 0 :
                 keys = keys[0]
@@ -204,16 +217,14 @@ def routB(time,trialtime,*args):
             SocialSit = visual.ImageStim(win,image=socim)
             SocialGroup = visual.ImageStim(win,image=sgroupim)
             Location = visual.ImageStim(win,image=locim)
-            Weather = visual.ImageStim(win,image=weather)
-            for this_stim in [Person, SocialSit,SocialGroup, Location,Weather]:
+            for this_stim in [Person]:
                 this_stim.size = [.25, .25]
-            for this_stim in [SocialSit, SocialGroup,Location,Weather]:
+            for this_stim in [SocialSit, SocialGroup,Location]:
                 this_stim.size = [.33, .33]
             Person.pos = Bim_positions[0]
             SocialSit.pos = Bim_positions[1]
             Location.pos = Bim_positions[2]
-            Weather.pos = Bim_positions[3]
-            SocialGroup.pos = Bim_positions[4]
+            SocialGroup.pos = Bim_positions[3]
             tBegin = clock.getTime()
             while clock.getTime() - tBegin < trialtime:
                 Person.draw()
@@ -221,7 +232,6 @@ def routB(time,trialtime,*args):
                 SocialSit.draw()
                 SocialGroup.draw()
                 Location.draw()
-                Weather.draw()           
                 keys = ready.getKeys(keyList=None, waitRelease=False)
                 if len(keys) > 0 :
                     keys = keys[0]
@@ -231,7 +241,6 @@ def routB(time,trialtime,*args):
                         return Stims
                 win.flip()
             routA(time,1)
-
     return Stims
 
 mouse = event.Mouse()
@@ -281,9 +290,9 @@ def routC(time,trials,*args):
     pressedShape = None
     personIms = ["party"+str(party)+"/people/"+p for p in people]
     for i,p in enumerate(people):
-        pStim[i] = visual.ImageStim(win,image="party"+str(party)+"/people/"+p,name="Person {0:d}".format(i),pos=Cpim_positions[i],size=(0.1,0.1))
+        pStim[i] = visual.ImageStim(win,image="party"+str(party)+"/people/"+p,name="Person {0:d}".format(i),pos=Cpim_positions[i],size=(0.1,0.1),color='white')
     for i,t in enumerate(tasks):
-        tStim[i] = visual.TextStim(win,text=t,height=0.05,pos=Ctim_positions[i],name=t)
+        tStim[i] = visual.TextStim(win,text=t,height=0.05,pos=Ctim_positions[i],name=t,color='white')
     running = True
     lineKeys = {}
     linetKeys = {}
@@ -320,10 +329,6 @@ def routC(time,trials,*args):
     mouseIsTaskDown = False
     mouseIsPersonDown = False
     while running:
-        for key in pStim.keys():
-            pStim[key].draw()
-        for key in tStim.keys():
-            tStim[key].draw()
         for r in rankStims:
             r.draw()
         if mouse.getPressed()[0] == 1 and mouseIsDown == False:
@@ -361,29 +366,51 @@ def routC(time,trials,*args):
                     if key != -1 and rank != -1:
                         break
                 if key != -1 and rank != -1:
+                    # If this person already has this rank occupied
                     if rank in lineKeys[mousePersonIndex]:
                         pastkey = lineKeys[mousePersonIndex][rank] 
                         del lineKeys[mousePersonIndex][rank]
                         if rank in linetKeys[pastkey]:
-                            del linetKeys[pastkey][rank]
+                            linetKeys[pastkey][rank] = None
                         lines[pastkey][rank] = visual.Rect(win, fillColor='white',pos=[l+m for l,m in zip(tStim[pastkey].pos,[0.25+0.25*rank,0])],size=[0.1,0.1])
+                    # If this person was already assigned this task before
                     elif (pastrank := checkTs(mousePersonIndex, linetKeys[key])) != -1:
                         if pastrank in linetKeys[key]:
-                            del linetKeys[key][pastrank]
+                            linetKeys[key][pastrank]
                         if pastrank in lineKeys[mousePersonIndex]:
                             del lineKeys[mousePersonIndex][pastrank]
                         lines[key][pastrank] = visual.Rect(win, fillColor='white',pos=[l+m for l,m in zip(tStim[key].pos,[0.25+0.25*pastrank,0])],size=[0.1,0.1])
+                    # If someone is already occupying this task rank, properly
+                    # overwrite their occupation wit the new person
+                    if rank in linetKeys[key] and not linetKeys[key][rank] is None:
+                        del lineKeys[linetKeys[key][rank]][rank]
                     lineKeys[mousePersonIndex][rank] = key
                     linetKeys[key][rank] = mousePersonIndex
                     lines[key][rank] = visual.ImageStim(win, personIms[mousePersonIndex],pos=lines[key][rank].pos,size=[0.1,0.1])
                     print(key,"to",mousePersonIndex)
                 mousePersonIndex = -1
+
         for _,it in lines.items():
             for _,itt in it.items(): 
                 itt.draw()
+
+        for i,l in lineKeys.items():
+            temp = sum([1 for Z in l.values() if not Z is None])
+            if temp == 3 and pStim[i].color != 'red':
+                pStim[i].color = 'red'
+            elif temp != 3 and pStim[i].color != 'white':
+                pStim[i].color = 'white'
+            pStim[i].draw()
+
         clines = 0
         for i,l in linetKeys.items():
-            clines += sum([1 for Z in l.values() if not Z is None])
+            temp = sum([1 for Z in l.values() if not Z is None])
+            clines += temp
+            if temp == 3 and (tStim[i].color != [1,-1,-1]).all():
+                tStim[i].color='red'
+            elif (tStim[i].color != [1,1,1]).all():
+                tStim[i].color='white'
+            tStim[i].draw()
         if clines == 3*len(tasks):
             keys = routOK(questStim,lines,pStim,tStim,rankStims)
             if keys == 'r':
@@ -432,9 +459,9 @@ def routD(fixtime,trials,*args):
     # Episode Select
     eind = shuffler([getRandInt(0,2) for i in range(trials)])
     # Reference cue
-    corruption = shuffler([getRandInt(0,4) for i in range(trials)])
+    corruption = shuffler([getRandInt(0,3) for i in range(trials)])
     # Query cues
-    otherchoice = shuffler([getRandInt(0,3) for i in range(len(corruption))])
+    otherchoice = shuffler([getRandInt(0,2) for i in range(len(corruption))])
     # Between or within person corruption
     bwgroup = shuffler([getRandInt(0,2) for i in range(len(corruption))])
     print(corruption)
@@ -556,11 +583,11 @@ def routD(fixtime,trials,*args):
             this_stim.size = [.33, .33]
         Stims[0].pos = Bim_positions[0]
         if leftorRight == -1:
-            Stims[1].pos = [i+j for i,j in zip(Bim_positions[4],[-0.1,0])]
-            Stims[2].pos = [i+j for i,j in zip(Bim_positions[1],[0.1,0])]
+            Stims[1].pos = [i+j for i,j in zip(Bim_positions[3],[-0.0,0])]
+            Stims[2].pos = [i+j for i,j in zip(Bim_positions[1],[0.0,0])]
         else:
-            Stims[1].pos = [i+j for i,j in zip(Bim_positions[1],[0.1,0])]
-            Stims[2].pos = [i+j for i,j in zip(Bim_positions[4],[-0.1,0])]
+            Stims[1].pos = [i+j for i,j in zip(Bim_positions[1],[0.0,0])]
+            Stims[2].pos = [i+j for i,j in zip(Bim_positions[3],[-0.0,0])]
         choice = 0
         time = clock.getTime()
         while choice == 0:
@@ -636,12 +663,13 @@ def routText(fill):
 
 routText("We will show you groups of images regarding a group of friends. Please pay attention to these sets of images as you will need to assign roles to these friends later for a _birthday party_")
 routA(1,1)
-lStim = routB(1,1,1,1)
+lStim = routB(1,10,2,1)
+
 routText("You will now plan the birthday party")
-lineKeys,planTime,planConf,plancRT = routC(1,10,1)
+lineKeys,planTime,planConf,plancRT = routC(1,10,2)
 
 routText("We will now present you stimuli you saw previously. Press right arrow if the images match together. Press left arrow if they do not")
-corrupt,other,choices,bw,conf,RT,confRT = routD(1,10,1,lStim)
+corrupt,other,choices,bw,conf,RT,confRT = routD(1,10,2,lStim)
 with open('data/{0}_Planning.txt'.format(expInfo['participant']),'w') as f:
     f.writelines(str(planTime) + "," + str(planConf) + "," + str(plancRT) + "\n")
     for key,item in lineKeys.items():
