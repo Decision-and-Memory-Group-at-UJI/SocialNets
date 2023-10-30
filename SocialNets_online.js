@@ -160,6 +160,17 @@ var Ctim_positions = {}
 
 var Npim_positions = {};
 
+// tFixation is for controlling the fixation stimuli
+// tBegin is for controlling the triplet timing
+// timeCF is for controlling the response time for confidence ratings
+// timeRank is for controlling the ranking response time
+// timeDec is for controlling the memory retrieval response time
+var tFixation;
+var tBegin;
+var timeCF;
+var timeRank;
+var timeDec;
+
 //const fixation = new visual.GratingStim({win: psychoJS.window,opacity:1,tex:null,pos:[0,0], mask:'gauss', sf:0, size:0.02, name:'fixation', autoLog:false});
 const fixation = new visual.TextStim({win: psychoJS.window,name:'Text',
         text:"+",
@@ -168,7 +179,6 @@ const fixation = new visual.TextStim({win: psychoJS.window,name:'Text',
         color:'white', colorSpace:'rgb', opacity:1,
         languageStyle:'LTR',
         depth:0.0});
-var tBegin;
 
 var instrText = new visual.TextStim({win:psychoJS.window, name:'Text',
         font:'Arial',
@@ -184,28 +194,28 @@ var confText = new visual.TextStim({win:psychoJS.window, name:'Text',
         depth:0.0});
 var notReady;
 
-function routAbeg(){
-     tBegin = clock.getTime() 
+async function routAbeg(){
+     tFixation = clock.getTime() 
     // Setup stimulus
     notReady = true;
     
     const FR = 60;
     
 
-    console.log("Hello ABeg");
     _ready_allKeys = [];
     fixation.autoDraw = true;
     return Scheduler.Event.NEXT;
 }
-function routAEnd(){
-    tBegin = 0;
+
+async function routAEnd(){
+    tFixation = clock.getTime();
     _ready_allKeys = [];
     fixation.autoDraw = false;
     return Scheduler.Event.NEXT;
 }
+
 function routA(time, trials){
-    console.log(clock.getTime()-tBegin,time);
-    if (clock.getTime() - tBegin < time){
+    if (clock.getTime() - tFixation< time){
         let keys = ready.getKeys({keyList:[], waitRelease:false});
         _ready_allKeys = [].concat(keys);
         if (_ready_allKeys.length > 0) {
@@ -230,7 +240,7 @@ var locs,socs,sits,trials;
 var trialT;
 var selected,postselect,iters,indices;
 var groupays,locays,sitays;
-function routBbeg(time,trialtime,nParty){
+async function routBbeg(time,trialtime,nParty){
     let party = "party" + nParty;
     Bim_positions = {0: [0, 0.25],
                 1: [0.6, -0.25],
@@ -300,13 +310,13 @@ function routBbeg(time,trialtime,nParty){
     let Stims = [...Array(stimlist.length).keys()].map((i)=>[...Array(stimlist[i].length).keys()].map((j)=>stimlist[i][j]));
     psychoJS.experiment.addData("Stimuli",Stims);
     trialT = 0
-    tBegin = clock.getTime();
+    tFixation = clock.getTime();
     selected = false;
     postselect = true;
     return Scheduler.Event.NEXT;
 }
 var person,Person,indsit,indloc,indsoc,socim,locim,sgroupim,SocialSit,SocialGroup,Location;
-async function routB(time,trialtime){
+function routB(time,trialtime){
 
     let t = trialT
     if(postselect){
@@ -317,7 +327,7 @@ async function routB(time,trialtime){
         }else{
             fixation.autoDraw = false;
             postselect = false;
-            tBegin = clock.getTime();
+            selected = false;
             return Scheduler.Event.FLIP_REPEAT;
         }
     }
@@ -379,11 +389,11 @@ async function routB(time,trialtime){
 
         lStim.push([person, socim,sgroupim,locim]);
         tBegin = clock.getTime();
+        if (t == 5){for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false}};
     }
 
     if(clock.getTime() - tBegin < trialtime){
         Person.opacity /= 1.01;
-        if (t == 5){for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false}};
 
         let keys = ready.getKeys({keyList:[], waitRelease:false});
         _ready_allKeys = [].concat(keys);
@@ -406,7 +416,7 @@ async function routB(time,trialtime){
         return Scheduler.Event.FLIP_REPEAT;
     }else{
         trialT += 1
-        tBegin = clock.getTime();
+        tFixation = clock.getTime();
         selected = false;
         SocialSit.autoDraw = false
         Person.autoDraw = false
@@ -422,14 +432,14 @@ async function routB(time,trialtime){
     };
 }
 
-async function routBIters(iterations,trialtime){
+function routBIters(iterations,trialtime){
     let lind = trialT
     if (lind % lStim.length == 0){
         lStim = shuffler(lStim);
     }
     if(postselect){
         fixation.autoDraw = true;
-        let ret = routA(time,1);
+        let ret = routA(1,1);
         if (ret === Scheduler.Event.FLIP_REPEAT){
             return ret;
         }else{
@@ -480,7 +490,7 @@ async function routBIters(iterations,trialtime){
         return Scheduler.Event.FLIP_REPEAT;
     }else{
         trialT += 1
-        tBegin = clock.getTime();
+        tFixation = clock.getTime();
         selected = false;
         SocialSit.autoDraw = false
         Person.autoDraw = false
@@ -528,10 +538,10 @@ function checkTs(ind,db){
 var tasksAll = [["DJ","Desserts","Barbecue","Decorations","Clean Up"],
             ["Fisher","Deckhand","Steering","Captain","Radio Operator"]];
 var pStim,tStim,tasks,rankStims,questStim,running;
-var c,mousePersonIndex, mouseTaskIndex, tBeg,count,mouseIsDown,mouseIsTaskDown,mouseIsPersonDown,okroutRun;
+var c,mousePersonIndex, mouseTaskIndex, count,mouseIsDown,mouseIsTaskDown,mouseIsPersonDown,okroutRun;
 var lineKeys, linetKeys,lines,personRank;
 
-function routCbeg(nParty){
+async function routCbeg(nParty){
 
     tasks = tasksAll[nParty-1]
     pStim = {};
@@ -591,7 +601,7 @@ function routCbeg(nParty){
     c = ['red','green','blue'];
     mousePersonIndex = -1;
     mouseTaskIndex = -1;
-    tBeg = clock.getTime();
+    timeRank = clock.getTime();
     count = 0;
     mouseIsDown = false;
     mouseIsTaskDown = false;
@@ -599,6 +609,7 @@ function routCbeg(nParty){
     okroutRun = false;
     return Scheduler.Event.NEXT;
 }
+
 function routC(){
 
     if (running){
@@ -722,16 +733,14 @@ function routC(){
                         lines[pastkey][rank].autoDraw = true;
                     }
                     // If this person was already assigned this task before
-                    else{
-                        let pastrank = checkTs(mousePersonIndex, linetKeys[key]);
-                        if (pastrank != -1){
-                            if (pastrank in linetKeys[key]){linetKeys[key][pastrank] = null};
-                            if (pastrank in lineKeys[mousePersonIndex]){delete lineKeys[mousePersonIndex][pastrank]};
-                            let pos = [tStim[key].pos[0] + 0.25+0.25*pastrank,tStim[key].pos[1]];
-                            lines[key][pastrank].autoDraw = false;
-                            lines[key][pastrank] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:pos,size:[0.1,0.1]});
-                            lines[key][pastrank].autoDraw = true;
-                        };
+                    let pastrank = checkTs(mousePersonIndex, linetKeys[key]);
+                    if (pastrank != -1){
+                        if (pastrank in linetKeys[key]){linetKeys[key][pastrank] = null};
+                        if (pastrank in lineKeys[mousePersonIndex]){delete lineKeys[mousePersonIndex][pastrank]};
+                        let pos = [tStim[key].pos[0] + 0.25+0.25*pastrank,tStim[key].pos[1]];
+                        lines[key][pastrank].autoDraw = false;
+                        lines[key][pastrank] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:pos,size:[0.1,0.1]});
+                        lines[key][pastrank].autoDraw = true;
                     };
                     // If someone is already occupying this task rank, properly
                     // overwrite their occupation wit the new person
@@ -748,7 +757,7 @@ function routC(){
         }; 
         return Scheduler.Event.FLIP_REPEAT;
     }else{
-        let RT = clock.getTime() - tBeg;
+        let RT = clock.getTime() - timeRank;
         psychoJS.experiment.addData("rankRT",RT);
         for (let i = 0; i < Object.keys(lines).length; i++){
             for (let j = 0; j < Object.keys(lines[i]).length;j++){
@@ -775,8 +784,8 @@ function routC(){
     }
 };
 
-var textConf,slider,time;
-function routCConfbeg(){
+var textConf,slider;
+async function routCConfbeg(){
     notReady = true;
     timeCF = clock.getTime();
     textConf = new visual.TextStim({win:psychoJS.window, name:'endText',
@@ -800,6 +809,7 @@ function routCConf(){
         slider.autoDraw = false;
         textConf.autoDraw = false;
         notReady = false;
+        slider.reset();
         return Scheduler.Event.NEXT;
     }
     else{
@@ -814,7 +824,8 @@ var doingConf,selectedLR,leftorRight;
 var choice;
 var Stimuls;
 var situationIm,socgroupsIm,locationIm;
-function routDbeg(trials){
+
+async function routDbeg(trials){
 
     pind = shuffler([...Array(trials).keys()].map((i)=>getRandInt(0,5)));
     // Episode Select
@@ -990,7 +1001,7 @@ function routD(trials){
         Stimuls[0].autoDraw = true;
         Stimuls[1].autoDraw = true;
         Stimuls[2].autoDraw = true;
-        time = clock.getTime();
+        timeDec = clock.getTime();
     }
 
     if (choice == 0){
@@ -1004,7 +1015,7 @@ function routD(trials){
             if (ready.keys == 'escape'){return quitPsychoJS()};
             if (ready.keys == 'left'){
                 choice = -1;
-                let RT = clock.getTime() - time;
+                let RT = clock.getTime() - timeDec;
                 choices.push(choice)
                 RTs.push(RT)
                 Stimuls[0].autoDraw = false;
@@ -1019,7 +1030,7 @@ function routD(trials){
             }
             else if (ready.keys == 'right'){
                 choice = 1;
-                let RT = clock.getTime() - time;
+                let RT = clock.getTime() - timeDec;
                 choices.push(choice)
                 RTs.push(RT)
                 Stimuls[0].autoDraw = false;
@@ -1037,7 +1048,6 @@ function routD(trials){
     };
     return Scheduler.Event.NEXT;
 };
-var timeCF;
 function routDc(){
     let ret = null;
     if (notReady){
