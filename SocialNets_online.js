@@ -126,7 +126,7 @@ const flowScheduler = new Scheduler(psychoJS);
 const dialogCancelScheduler = new Scheduler(psychoJS);
 psychoJS.scheduleCondition(function() { return (psychoJS.gui.dialogComponent.button === 'OK'); }, flowScheduler, dialogCancelScheduler);
 
-flowScheduler.add(setText,"You'll view sets of 3 images comprising locations, groups and activities corresponding to an individual. When viewing the 3 images, please imagine the listed person performing the given activity in the displayed location with the presented group of people. Please try to remember these events that you imagine since they'll be need to accurately assign the presented individual to specific roles in a TASKNAME.");
+flowScheduler.add(setText,"You'll view sets of 3 images comprising locations, groups and activities corresponding to an individual. When viewing the 3 images, please imagine the listed person performing the given activity in the displayed location with the presented group of people. Please try to remember these events that you imagine since they'll be needed to accurately assign the presented individual to specific roles in a TASKNAME.");
 flowScheduler.add(routText);
 flowScheduler.add(routAbeg)
 flowScheduler.add(routA,1,1);
@@ -134,14 +134,16 @@ flowScheduler.add(routAEnd)
 /flowScheduler.add(routBbeg,1,1,2);
 flowScheduler.add(routB,1,2);
 flowScheduler.add(routBIters,2,2);
+flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first, second, and third best for each role in TASKNAME. To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. Also, note that no individual can be ranked first, second, or third in multiple roles")
+flowScheduler.add(routText);
 flowScheduler.add(routCbeg,2);
 flowScheduler.add(routC);
 flowScheduler.add(routCConfbeg);
 flowScheduler.add(routCConf);
+flowScheduler.add(setText,"You'll now view a series of reference images. You will need to choose which of the two images at the bottom left and right of the screen was previously paired with a reference image as quickly and accurately as possible by either pressing the left or right button on the keyboard.")
+flowScheduler.add(routText);
 flowScheduler.add(routDbeg,10);
 flowScheduler.add(routD,10);
-//flowScheduler.add(routC,1,10,2);
-//flowScheduler.add(routD,1,10,2);
 flowScheduler.add(quitPsychoJS, '', true);
 
 dialogCancelScheduler.add(quitPsychoJS, '', false);
@@ -255,7 +257,7 @@ async function routBbeg(time,trialtime,nParty){
     for (let i = 0; i < labels.length; i++){
         let t = labels[i];
         TextStims.push(new visual.TextStim({win: psychoJS.window,text:t,height:0.05,pos:BLim_positions[i+1],name:t,wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0}));
-        TextStims[i].autoDraw = true
+//        TextStims[i].autoDraw = true
     };
 
     people = [...Array(5).keys()].map((k)=>party+"/people/"+(k+1)+".png");
@@ -328,6 +330,7 @@ function routB(time,trialtime){
             fixation.autoDraw = false;
             postselect = false;
             selected = false;
+            if (t <= 5){for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = true}}
             return Scheduler.Event.FLIP_REPEAT;
         }
     }
@@ -423,6 +426,7 @@ function routB(time,trialtime){
         SocialGroup.autoDraw = false
         Location.autoDraw = false
         postselect = true;
+        for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = false}
         if (trialT >= trials*2){
             trialT = 0;
             return Scheduler.Event.NEXT;
@@ -635,6 +639,7 @@ function routC(){
                         linetKeys[i][j] = null;
                     };
                 };
+                questStim.autoDraw = false;
             };
         };
 
@@ -883,15 +888,15 @@ function routD(trials){
     if (doingConf){
         let ret = routDc();
         if (ret != null){
-            confidences.push("rankconf",ret[0]);
-            confRTs.push("rankconfRT",ret[1]);
+            confidences.push(ret[0]);
+            confRTs.push(ret[1]);
             slider.autoDraw = false;
             textConf.autoDraw = false;
             doingConf = false;
             notReady = false;
             postselect = true;
             slider.reset();
-            tBegin = clock.getTime();
+            tFixation = clock.getTime();
             choice = 0;
             trialT += 1;
             return Scheduler.Event.FLIP_REPEAT;
@@ -1013,6 +1018,12 @@ function routD(trials){
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
             if (ready.keys == 'escape'){return quitPsychoJS()};
+            if (ready.keys == 'k'){
+                Stimuls[0].autoDraw = false;
+                Stimuls[1].autoDraw = false;
+                Stimuls[2].autoDraw = false;
+                return Scheduler.Event.NEXT;
+            };
             if (ready.keys == 'left'){
                 choice = -1;
                 let RT = clock.getTime() - timeDec;
