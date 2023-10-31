@@ -1,6 +1,5 @@
 import {visual, core,util,data,hardware} from 'https://pavlovia.org/lib/psychojs-2023.1.3.js';
 const { PsychoJS } = core;
-const { TrialHandler, MultiStairHandler } = data;
 const { Scheduler } = util;
 
 function getRandInt(bot,topp){
@@ -41,6 +40,8 @@ psychoJS.schedule(psychoJS.gui.DlgFromDict({
   dictionary: expInfo,
   title: expName
 }));
+
+var defaultSize = [1440,815]
 
 psychoJS.start({
   expName: expName,
@@ -159,8 +160,6 @@ var Cpim_positions = {};
 
 var Ctim_positions = {}
 
-var Npim_positions = {};
-
 // tFixation is for controlling the fixation stimuli
 // tBegin is for controlling the triplet timing
 // timeCF is for controlling the response time for confidence ratings
@@ -187,6 +186,7 @@ var instrText = new visual.TextStim({win:psychoJS.window, name:'Text',
         color:'white', colorSpace:'rgb', opacity:1,
         languageStyle:'LTR',
         depth:0.0});
+
 var confText = new visual.TextStim({win:psychoJS.window, name:'Text',
         font:'Arial',
         units:'height', pos:[0, 0], height:0.05, wrapWidth:null, ori:0,
@@ -254,9 +254,10 @@ var locs,socs,sits,trials;
 var trialT;
 var selected,postselect,iters,indices;
 var groupays,locays,sitays;
-
+var winPrevSize;
 async function routBbeg(time,trialtime,nParty){
     let party = "party" + nParty;
+    winPrevSize = psychoJS.window.size.map((s)=>s);
     Bim_positions = {0: [0, 0.25],
                 1: [0.6, -0.25],
                 2: [-0.0, -0.25],
@@ -391,25 +392,71 @@ function routB(time,trialtime){
         sgroupim = tsocgroups[selectperson]+"/"+tsocimages[selectperson][indsoc];
  
         if (t >= 5){indices = shuffler(indices)};
-        Person = new visual.ImageStim({win:psychoJS.window,image:person,size:[.25,.25], mask : undefined, anchor : 'center', ori : 0, pos: Bim_positions[0],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
+        let Psize;
+        let Ssize;
+        let Bcopy,BLcopy;
+        winPrevSize = psychoJS.window.size;
+        Bcopy = JSON.parse(JSON.stringify(Bim_positions));
+        BLcopy = JSON.parse(JSON.stringify(BLim_positions));
+        let offset = [0,-0.2]
+        let height = 0.05
+        let ratio = [psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
+        for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
+        for(let k=1; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){TextStims[k-1].pos[kk] = (BLcopy[k][kk])*ratio[kk]}};
+        for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].height = height*ratio[1]};
+        Psize = [0.25*ratio[0],0.25*ratio[1]];
+        Ssize = [0.33*ratio[0],0.33*ratio[1]];
+
+        Person = new visual.ImageStim({win:psychoJS.window,image:person,size:Psize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[0],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
-        SocialSit = new visual.ImageStim({win:psychoJS.window,image:socim,size:[.33, .33], mask : undefined, anchor : 'center', ori : 0, pos: Bim_positions[indices[0]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
+        SocialSit = new visual.ImageStim({win:psychoJS.window,image:socim,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[0]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
-        SocialGroup = new visual.ImageStim({win:psychoJS.window,image:sgroupim,size:[.33, .33], mask : undefined, anchor : 'center', ori : 0, pos: Bim_positions[indices[1]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
+        SocialGroup = new visual.ImageStim({win:psychoJS.window,image:sgroupim,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[1]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
-        Location = new visual.ImageStim({win:psychoJS.window,image:locim,size:[.33, .33], mask : undefined, anchor : 'center', ori : 0, pos: Bim_positions[indices[2]], color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
+        Location = new visual.ImageStim({win:psychoJS.window,image:locim,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[2]], color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
-        SocialSit.autoDraw = true
-        Person.autoDraw = true
-        SocialGroup.autoDraw = true
-        Location.autoDraw = true
+
+        SocialSit.autoDraw = true;
+        Person.autoDraw = true;
+        SocialGroup.autoDraw = true;
+        Location.autoDraw = true;
 
         lStim.push([person, socim,sgroupim,locim]);
         tBegin = clock.getTime();
         if (t == 5){for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false}};
+
     }
 
     if(clock.getTime() - tBegin < trialtime){
+        if(psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
+            let Psize;
+            let Ssize;
+            let Bcopy;
+            winPrevSize = psychoJS.window.size;
+            Bcopy = JSON.parse(JSON.stringify(Bim_positions));
+            BLcopy = JSON.parse(JSON.stringify(BLim_positions));
+            let offset = [0,-0.2]
+            let height = 0.05
+            let ratio = [psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
+            console.log(ratio);
+            ratio = [1,1];
+            for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = [k][kk]*ratio[kk]}};
+            for(let k=1; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){BLcopy[kk] = (BLcopy[k][kk])*ratio[kk]}};
+            Psize = [0.25*ratio[0],0.25*ratio[1]];
+            Ssize = [0.33*ratio[0],0.33*ratio[1]];
+            Person.size = Psize;
+            SocialSit.size = Ssize;
+            Location.size = Ssize;
+            SocialGroup.size = Ssize;
+            SocialSit.pos = Bcopy[indices[1]];
+            SocialGroup.pos = Bcopy[indices[1]];
+            Location.pos = Bcopy[indices[2]];
+            for(let k=1; k< Object.keys(Bcopy).length;k++){
+                TextStims[k-1].pos = [BLcopy[k][0]*ratio[0],BLcopy[k][1]*ratio[1]];
+            };
+            for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].height = height*ratio[1]};
+        }
+
         Person.opacity /= 1.01;
 
         let keys = ready.getKeys({keyList:[], waitRelease:false});
@@ -476,13 +523,26 @@ function routBIters(iterations,trialtime){
         let t = lind % lStim.length;
         [person,socim,sgroupim,locim] = lStim[t];
         indices = shuffler(indices);
-        Person = new visual.ImageStim({win:psychoJS.window,image:person,size:[.25,.25], mask : undefined, anchor : 'center', ori : 0, pos: Bim_positions[0],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
+        let Psize;
+        let Ssize;
+        let Bcopy;
+        winPrevSize = psychoJS.window.size;
+        Bcopy = JSON.parse(JSON.stringify(Bim_positions));
+        let offset = [0,-0.2]
+        let height = 0.05
+        let ratio = [psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
+        for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
+        for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].height = height*ratio[1]};
+        Psize = [0.25*ratio[0],0.25*ratio[1]];
+        Ssize = [0.33*ratio[0],0.33*ratio[1]];
+
+        Person = new visual.ImageStim({win:psychoJS.window,image:person,size:Psize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[0],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
-        SocialSit = new visual.ImageStim({win:psychoJS.window,image:socim,size:[.33, .33], mask : undefined, anchor : 'center', ori : 0, pos: Bim_positions[indices[0]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
+        SocialSit = new visual.ImageStim({win:psychoJS.window,image:socim,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[0]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
-        SocialGroup = new visual.ImageStim({win:psychoJS.window,image:sgroupim,size:[.33, .33], mask : undefined, anchor : 'center', ori : 0, pos: Bim_positions[indices[1]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
+        SocialGroup = new visual.ImageStim({win:psychoJS.window,image:sgroupim,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[1]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
-        Location = new visual.ImageStim({win:psychoJS.window,image:locim,size:[.33, .33], mask : undefined, anchor : 'center', ori : 0, pos: Bim_positions[indices[2]], color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
+        Location = new visual.ImageStim({win:psychoJS.window,image:locim,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[2]], color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
         SocialSit.autoDraw = true;
         Person.autoDraw = true;
@@ -493,6 +553,28 @@ function routBIters(iterations,trialtime){
     }
 
     if (clock.getTime() - tBegin < trialtime){
+        if(psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
+            let Psize;
+            let Ssize;
+            let Bcopy;
+            winPrevSize = psychoJS.window.size;
+            Bcopy = JSON.parse(JSON.stringify(Bim_positions));
+            let offset = [0,-0.2]
+            let height = 0.05
+            let ratio = [psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
+            ratio = [1,1];
+            for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
+            Psize = [0.25*ratio[0],0.25*ratio[1]];
+            Ssize = [0.33*ratio[0],0.33*ratio[1]];
+            Person.size = Psize;
+            SocialSit.size = Ssize;
+            Location.size = Ssize;
+            SocialGroup.size = Ssize;
+            SocialSit.pos = Bcopy[indices[1]];
+            SocialGroup.pos = Bcopy[indices[1]];
+            Location.pos = Bcopy[indices[2]];
+        }
+
         Person.opacity /= 1.01;
         let keys = ready.getKeys({keyList:[], waitRelease:false});
         _ready_allKeys = [].concat(keys);
@@ -577,10 +659,6 @@ async function routCbeg(nParty){
         Ctim_positions[i] = [-0.5,lArr[i]];
     };
 
-    for (let i = 0; i < lArr.length; i++){
-        Npim_positions[i] = [0.65,lArr[i]-0.05];
-    };
-
     for (let i = 0; i < people.length; i++){
         let p = people[i];
         pStim[i] = new visual.ImageStim({win:psychoJS.window,image:p,name:"Person " + i,pos:Cpim_positions[i],size:[0.1,0.1],color:'white'});
@@ -596,6 +674,7 @@ async function routCbeg(nParty){
     linetKeys = {};
     lines = {};
     personRank = {};
+    winPrevSize = psychoJS.window.size.map((s)=>s);
     for (let i = 0; i < tasks.length; i++){
         lineKeys[i] = {};
         personRank[i] = [false,false,false];
@@ -639,6 +718,30 @@ function routC(){
     if (running){
         let keys = ready.getKeys({keyList:[], waitRelease:false});
         _ready_allKeys = [].concat(keys);
+
+        if (psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
+            winPrevSize = psychoJS.window.size.map((s)=>s);
+            let Copy_Cpim_positions = JSON.parse(JSON.stringify(Cpim_positions));
+            let Copy_Ctim_positions = JSON.parse(JSON.stringify(Ctim_positions));
+            let ratio = [psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]];
+            for (let i = 0; i < people.length; i++){
+                for (let j = 0; j < Cpim_positions[i].length; j++){Copy_Cpim_positions[i][j] = Copy_Cpim_positions[i][j]*ratio[j]};
+                pStim[i].pos = Copy_Cpim_positions[i];
+                pStim[i].size = [0.1*ratio[0],0.1*ratio[1]];
+            };
+            for (let i = 0; i < tasks.length; i++){
+                for (let j = 0; j < Ctim_positions[i].length; j++){Copy_Ctim_positions[i][j] = Copy_Ctim_positions[i][j]*ratio[j]}
+                tStim[i].pos = Copy_Ctim_positions[i];
+                tStim[i].height = 0.05*ratio[1];
+            };
+            for(let j = 0; j < 3; j++){rankStims[j].pos = [tStim[people.length-1].pos[0] + (0.25+0.25*j)*ratio[0],0.4*ratio[1]];rankStims[j].height = 0.05*ratio[1]};
+            for (let i =0; i < tasks.length; i++){
+                for (let j = 0; j < 3; j++){
+                    lines[i][j].pos = [tStim[i].pos[0]+(0.25+0.25*j)*ratio[0],tStim[i].pos[1]];
+                    lines[i][j].size = [0.1*ratio[0],0.1*ratio[1]];
+                }
+            }
+        }
         if (_ready_allKeys.length > 0) {
             ready.keys = _ready_allKeys[_ready_allKeys.length - 1].name;  // just the last key pressed
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
@@ -754,15 +857,16 @@ function routC(){
                     if (key != -1 && rank != -1)
                         break;
                 };
+                let ratio = [winPrevSize[0]/defaultSize[0],winPrevSize[1]/defaultSize[1]]
                 if (key != -1 && rank != -1){
                     // If this person already has this rank occupied
                     if (rank in lineKeys[mousePersonIndex]){
                         let pastkey = lineKeys[mousePersonIndex][rank];
                         delete lineKeys[mousePersonIndex][rank];
                         if (rank in linetKeys[pastkey]){linetKeys[pastkey][rank] = null};
-                        let pos = [tStim[pastkey].pos[0] + 0.25+0.25*rank,tStim[pastkey].pos[1]];
+                        let pos = [tStim[pastkey].pos[0] + (0.25+0.25*rank)*ratio[0],tStim[pastkey].pos[1]];
                         lines[pastkey][rank].autoDraw = false;
-                        lines[pastkey][rank] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:pos,size:[0.1,0.1]});
+                        lines[pastkey][rank] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:pos,size:[0.1*ratio[0],0.1*ratio[1]]});
                         lines[pastkey][rank].autoDraw = true;
                     }
                     // If this person was already assigned this task before
@@ -770,9 +874,10 @@ function routC(){
                     if (pastrank != -1){
                         if (pastrank in linetKeys[key]){linetKeys[key][pastrank] = null};
                         if (pastrank in lineKeys[mousePersonIndex]){delete lineKeys[mousePersonIndex][pastrank]};
-                        let pos = [tStim[key].pos[0] + 0.25+0.25*pastrank,tStim[key].pos[1]];
+                        let pos = [tStim[key].pos[0] + (0.25+0.25*pastrank)*ratio[0],tStim[key].pos[1]];
                         lines[key][pastrank].autoDraw = false;
-                        lines[key][pastrank] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:pos,size:[0.1,0.1]});
+                        lines[key][pastrank] = new
+                            visual.Rect({win:psychoJS.window, fillColor:'white',pos:pos,size:[0.1*ratio[0],0.1*ratio[1]]});
                         lines[key][pastrank].autoDraw = true;
                     };
                     // If someone is already occupying this task rank, properly
@@ -781,7 +886,8 @@ function routC(){
                     lineKeys[mousePersonIndex][rank] = key;
                     linetKeys[key][rank] = mousePersonIndex;
                     lines[key][rank].autoDraw = false;
-                    lines[key][rank] = new visual.ImageStim({win:psychoJS.window, image:people[mousePersonIndex],pos:lines[key][rank].pos,size:[0.1,0.1]});
+                    lines[key][rank] = new
+                        visual.ImageStim({win:psychoJS.window, image:people[mousePersonIndex],pos:lines[key][rank].pos,size:[0.1*ratio[1],0.1*ratio[1]]});
                     lines[key][rank].autoDraw = true;
                     console.log(key,"to",mousePersonIndex);
                 };
@@ -1047,6 +1153,22 @@ function routD(trials){
     }
 
     if (choice == 0){
+        if (psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
+            winPrevSize = psychoJS.window.size.map((s)=>s);
+            let ratio = [winPrevSize[0]/defaultSize[0],winPrevSize[1]/defaultSize[1]];
+            Stimuls[0].pos = [Bim_positions[0][0]*ratio[0],Bim_positions[0][1]*ratio[1]];
+            if (correct[correct.length-1] == -1){
+                Stimuls[1].pos = [Bim_positions[3][0]*ratio[0],Bim_positions[3][1]*ratio[1]];
+                Stimuls[2].pos = [Bim_positions[1][0]*ratio[0],Bim_positions[1][1]*ratio[1]];
+            }else{
+                Stimuls[2].pos = [Bim_positions[3][0]*ratio[0],Bim_positions[3][1]*ratio[1]];
+                Stimuls[1].pos = [Bim_positions[1][0]*ratio[0],Bim_positions[1][1]*ratio[1]];
+            };
+            Stimuls[0].size = [0.33*ratio[0],0.33*ratio[1]]
+            Stimuls[1].size = [0.33*ratio[0],0.33*ratio[1]]
+            Stimuls[2].size = [0.33*ratio[0],0.33*ratio[1]]
+        }
+
         // Kick user out of experiment if they take too long to reply
         if (clock.getTime() - timeDec > 60){return quitPsychoJS("Kicked out for being idle for too long")};
         for (let s = 0; s < Stimuls.length; s++){Stimuls[s].draw()};
@@ -1104,6 +1226,12 @@ function routD(trials){
     return Scheduler.Event.NEXT;
 };
 function routDc(){
+    if (psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
+        winPrevSize = psychoJS.window.size.map((s)=>s);
+        let ratio = [winPrevSize[0]/defaultSize[0],winPrevSize[1]/defaultSize[1]];
+        textConf.height = 0.05*ratio[1];
+        slider.size = [1*ratio[0],0.1*ratio[1]];
+    }
     let ret = null;
     if (notReady){
         let keys = ready.getKeys({keyList:[], waitRelease:false});
@@ -1126,10 +1254,16 @@ function setText(fill){
     instrText.text = fill;
     instrText.autoDraw = true;
     notReady = true
+    winPrevSize = psychoJS.window.size;
     return Scheduler.Event.NEXT;
 }
 async function routText(fill){
-    
+    if (psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
+        winPrevSize = psychoJS.window.size.map((s)=>s);
+        let ratio = [winPrevSize[0]/defaultSize[0],winPrevSize[1]/defaultSize[1]];
+        instrText.height = ratio[1]*0.05;
+    }
+
     if(notReady){
         let keys = ready.getKeys({keyList:[], waitRelease:false});
         _ready_allKeys = [].concat(keys);
