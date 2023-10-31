@@ -150,7 +150,6 @@ dialogCancelScheduler.add(quitPsychoJS, '', false);
 var _ready_allKeys;
 const clock = new util.Clock();
 
-const ready = new core.Keyboard({psychoJS: psychoJS});
 var Bim_positions;
 
 var BLim_positions;
@@ -196,7 +195,19 @@ var confText = new visual.TextStim({win:psychoJS.window, name:'Text',
         depth:0.0});
 var notReady;
 
+
+var frames;
+var mouse = new core.Mouse({win:psychoJS.window});
+
+const ready = new core.Keyboard({psychoJS: psychoJS});
+
+async function saveRes(){
+    if (frames % 600 == 0){
+        psychoJS.experiment.save();
+    }
+}
 async function routAbeg(){
+    frames = 0;
      tFixation = clock.getTime() 
     // Setup stimulus
     notReady = true;
@@ -226,6 +237,7 @@ function routA(time, trials){
             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
             if (ready.keys == "escape"){return quitPsychoJS()}
         }
+        frames += 1;
         return Scheduler.Event.FLIP_REPEAT;
     }
     return Scheduler.Event.NEXT;
@@ -242,6 +254,7 @@ var locs,socs,sits,trials;
 var trialT;
 var selected,postselect,iters,indices;
 var groupays,locays,sitays;
+
 async function routBbeg(time,trialtime,nParty){
     let party = "party" + nParty;
     Bim_positions = {0: [0, 0.25],
@@ -331,6 +344,7 @@ function routB(time,trialtime){
             postselect = false;
             selected = false;
             if (t <= 5){for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = true}}
+            frames += 1;
             return Scheduler.Event.FLIP_REPEAT;
         }
     }
@@ -416,6 +430,7 @@ function routB(time,trialtime){
 
                 return Scheduler.Event.NEXT}
         }
+        frames += 1;
         return Scheduler.Event.FLIP_REPEAT;
     }else{
         trialT += 1
@@ -431,6 +446,7 @@ function routB(time,trialtime){
             trialT = 0;
             return Scheduler.Event.NEXT;
         }else{
+            frames += 1;
             return Scheduler.Event.FLIP_REPEAT
         };
     };
@@ -450,6 +466,7 @@ function routBIters(iterations,trialtime){
             fixation.autoDraw = false;
             postselect = false;
             tBegin = clock.getTime();
+            frames += 1;
             return Scheduler.Event.FLIP_REPEAT;
         }
     }
@@ -467,10 +484,11 @@ function routBIters(iterations,trialtime){
 });
         Location = new visual.ImageStim({win:psychoJS.window,image:locim,size:[.33, .33], mask : undefined, anchor : 'center', ori : 0, pos: Bim_positions[indices[2]], color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
-        SocialSit.autoDraw = true
-        Person.autoDraw = true
-        SocialGroup.autoDraw = true
-        Location.autoDraw = true
+        SocialSit.autoDraw = true;
+        Person.autoDraw = true;
+        SocialGroup.autoDraw = true;
+        Location.autoDraw = true;
+        frames += 1;
         return Scheduler.Event.FLIP_REPEAT;
     }
 
@@ -491,6 +509,7 @@ function routBIters(iterations,trialtime){
                 Location.autoDraw = false
                 return Scheduler.Event.NEXT}
         }
+        frames += 1;
         return Scheduler.Event.FLIP_REPEAT;
     }else{
         trialT += 1
@@ -505,12 +524,12 @@ function routBIters(iterations,trialtime){
             trialT = 0;
             return Scheduler.Event.NEXT;
         }else{
+            frames += 1;
             return Scheduler.Event.FLIP_REPEAT
         };
     };
 };
 
-var mouse = new core.Mouse({win:psychoJS.window});
 
 function routOK(){
     let keys = ready.getKeys({keyList:[], waitRelease:false});
@@ -544,9 +563,8 @@ var tasksAll = [["DJ","Desserts","Barbecue","Decorations","Clean Up"],
 var pStim,tStim,tasks,rankStims,questStim,running;
 var c,mousePersonIndex, mouseTaskIndex, count,mouseIsDown,mouseIsTaskDown,mouseIsPersonDown,okroutRun;
 var lineKeys, linetKeys,lines,personRank;
-
+var mouseIdleTime,mousePrevPos;
 async function routCbeg(nParty){
-
     tasks = tasksAll[nParty-1]
     pStim = {};
     tStim = {};
@@ -611,6 +629,8 @@ async function routCbeg(nParty){
     mouseIsTaskDown = false;
     mouseIsPersonDown = false;
     okroutRun = false;
+    mouseIdleTime = clock.getTime();
+    mousePrevPos = mouse.getPos();
     return Scheduler.Event.NEXT;
 }
 
@@ -642,6 +662,13 @@ function routC(){
                 questStim.autoDraw = false;
             };
         };
+
+        // Kick out the user if their mouse has been idle for to long
+        if (mousePrevPos[0] != mouse.getPos()[0] && mousePrevPos[1] != mouse.getPos()[1]){
+            mousePrevPos = mouse.getPos();
+            mouseIdleTime = clock.getTime();
+        };
+        if (clock.getTime() - mouseIdleTime >=60){return quitPsychoJS("Kicked out for being idle for too long")};
 
         for (let i = 0; i < Object.keys(lineKeys).length; i++){
             let l = lineKeys[i];
@@ -686,6 +713,7 @@ function routC(){
                 questStim.autoDraw = false;
             }
             else if (keys == 'k'){running = false};
+            frames += 1;
             return Scheduler.Event.FLIP_REPEAT;
         };
         if (mouse.getPressed()[0] == 1 && mouseIsDown == false){
@@ -760,6 +788,7 @@ function routC(){
                 mousePersonIndex = -1;
             };
         }; 
+        frames += 1;
         return Scheduler.Event.FLIP_REPEAT;
     }else{
         let RT = clock.getTime() - timeRank;
@@ -808,6 +837,9 @@ async function routCConfbeg(){
 
 function routCConf(){
     let ret = routDc();
+    // Kick user out if they take too long to report their confidence
+    if (clock.getTime() - timeCF >= 60){return quitPsychoJS("Kicked out for being idle for too long")};
+
     if (ret != null){
         psychoJS.experiment.addData("rankconf",ret[0]);
         psychoJS.experiment.addData("rankconfRT",ret[1]);
@@ -818,6 +850,7 @@ function routCConf(){
         return Scheduler.Event.NEXT;
     }
     else{
+        frames += 1;
         return Scheduler.Event.FLIP_REPEAT;
     }
 };
@@ -874,7 +907,6 @@ function routD(trials){
     if(postselect){
         fixation.autoDraw = true;
         let ret = routA(1,1);
-        console.log(ret,1,tBegin,ret==Scheduler.Event.FLIP_REPEAT);
         if (ret == Scheduler.Event.FLIP_REPEAT){
             return ret;
         }else{
@@ -882,11 +914,14 @@ function routD(trials){
             postselect = false;
             doingConf = false;
             selectedLR = false;
+            frames += 1;
             return Scheduler.Event.FLIP_REPEAT;
         }
     }
     if (doingConf){
         let ret = routDc();
+        // Kick user out if they take too long to report their confidence
+        if (clock.getTime() - timeCF >= 60){return quitPsychoJS("Kicked out for being idle for too long")};
         if (ret != null){
             confidences.push(ret[0]);
             confRTs.push(ret[1]);
@@ -899,9 +934,11 @@ function routD(trials){
             tFixation = clock.getTime();
             choice = 0;
             trialT += 1;
+            frames += 1;
             return Scheduler.Event.FLIP_REPEAT;
         }
         else{
+            frames += 1;
             return Scheduler.Event.FLIP_REPEAT;
         }
     }
@@ -1010,6 +1047,8 @@ function routD(trials){
     }
 
     if (choice == 0){
+        // Kick user out of experiment if they take too long to reply
+        if (clock.getTime() - timeDec > 60){return quitPsychoJS("Kicked out for being idle for too long")};
         for (let s = 0; s < Stimuls.length; s++){Stimuls[s].draw()};
         let keys = ready.getKeys({keyList:[], waitRelease:false});
         _ready_allKeys = [].concat(keys);
@@ -1055,6 +1094,11 @@ function routD(trials){
                 timeCF = clock.getTime()
             };
         };
+        let mRT = 0;for(let z = 0; z < RTs.length;z++){mRT += RTs[z]};
+        // Kick user out of experiment if they are responding way too fast on
+        // average.
+        if (mRT/RTs.length <0.1 && RTs.length > 5){return quitPsychoJS("Kicked out for suspiciously fast responses")};
+        frames += 1;
         return Scheduler.Event.FLIP_REPEAT;
     };
     return Scheduler.Event.NEXT;
@@ -1101,11 +1145,13 @@ async function routText(fill){
             }
         };
     };
+    frames += 1;
     return Scheduler.Event.FLIP_REPEAT;
 };
 
 async function quitPsychoJS(message, isCompleted) {
   // Check for and save orphaned data
+  psychoJS.experiment.addData("FinishedExperiment",isCompleted);
   if (psychoJS.experiment.isEntryEmpty()) {
     psychoJS.experiment.nextEntry();
   }
