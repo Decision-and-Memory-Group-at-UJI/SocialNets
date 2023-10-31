@@ -83,41 +83,41 @@ psychoJS.start({
     {'name': 'party2/locations/3/2.jpg', 'path': 'party2/locations/3/2.jpg'},
     {'name': 'party2/locations/4/2.jpg', 'path': 'party2/locations/4/2.jpg'},
     {'name': 'party2/locations/5/2.jpg', 'path': 'party2/locations/5/2.jpg'},
-//    {'name': 'party1/people/1.png', 'path': 'party1/people/1.png'},
-//    {'name': 'party1/people/2.png', 'path': 'party1/people/2.png'},
-//    {'name': 'party1/people/3.png', 'path': 'party1/people/3.png'},
-//    {'name': 'party1/people/4.png', 'path': 'party1/people/4.png'},
-//    {'name': 'party1/people/5.png', 'path': 'party1/people/5.png'},
-//    {'name': 'party1/socialSit/1/1.jpg', 'path': 'party1/socialSit/1/1.jpg'},
-//    {'name': 'party1/socialSit/2/1.jpg', 'path': 'party1/socialSit/2/1.jpg'},
-//    {'name': 'party1/socialSit/3/1.jpg', 'path': 'party1/socialSit/3/1.jpg'},
-//    {'name': 'party1/socialSit/4/1.jpg', 'path': 'party1/socialSit/4/1.jpg'},
-//    {'name': 'party1/socialSit/5/1.jpg', 'path': 'party1/socialSit/5/1.jpg'},
-//    {'name': 'party1/socialSit/1/2.jpg', 'path': 'party1/socialSit/1/2.jpg'},
-//    {'name': 'party1/socialSit/2/2.jpg', 'path': 'party1/socialSit/2/2.jpg'},
-//    {'name': 'party1/socialSit/3/2.jpg', 'path': 'party1/socialSit/3/2.jpg'},
-//    {'name': 'party1/socialSit/4/2.jpg', 'path': 'party1/socialSit/4/2.jpg'},
-//    {'name': 'party1/socialSit/5/2.jpg', 'path': 'party1/socialSit/5/2.jpg'},
-//    {'name': 'party1/socgroups/1/1.jpg', 'path': 'party1/socgroups/1/1.jpg'},
-//    {'name': 'party1/socgroups/2/1.jpg', 'path': 'party1/socgroups/2/1.jpg'},
-//    {'name': 'party1/socgroups/3/1.jpg', 'path': 'party1/socgroups/3/1.jpg'},
-//    {'name': 'party1/socgroups/4/1.jpg', 'path': 'party1/socgroups/4/1.jpg'},
-//    {'name': 'party1/socgroups/5/1.jpg', 'path': 'party1/socgroups/5/1.jpg'},
-//    {'name': 'party1/socgroups/1/2.jpg', 'path': 'party1/socgroups/1/2.jpg'},
-//    {'name': 'party1/socgroups/2/2.jpg', 'path': 'party1/socgroups/2/2.jpg'},
-//    {'name': 'party1/socgroups/3/2.jpg', 'path': 'party1/socgroups/3/2.jpg'},
-//    {'name': 'party1/socgroups/4/2.jpg', 'path': 'party1/socgroups/4/2.jpg'},
-//    {'name': 'party1/socgroups/5/2.jpg', 'path': 'party1/socgroups/5/2.jpg'},
-//    {'name': 'party1/locations/1/1.jpg', 'path': 'party1/locations/1/1.jpg'},
-//    {'name': 'party1/locations/2/1.jpg', 'path': 'party1/locations/2/1.jpg'},
-//    {'name': 'party1/locations/3/1.jpg', 'path': 'party1/locations/3/1.jpg'},
-//    {'name': 'party1/locations/4/1.jpg', 'path': 'party1/locations/4/1.jpg'},
-//    {'name': 'party1/locations/5/1.jpg', 'path': 'party1/locations/5/1.jpg'},
-//    {'name': 'party1/locations/1/2.jpg', 'path': 'party1/locations/1/2.jpg'},
-//    {'name': 'party1/locations/2/2.jpg', 'path': 'party1/locations/2/2.jpg'},
-//    {'name': 'party1/locations/3/2.jpg', 'path': 'party1/locations/3/2.jpg'},
-//    {'name': 'party1/locations/4/2.jpg', 'path': 'party1/locations/4/2.jpg'},
-//    {'name': 'party1/locations/5/2.jpg', 'path': 'party1/locations/5/2.jpg'},
+    {'name': 'party1/people/1.png', 'path': 'party1/people/1.png'},
+    {'name': 'party1/people/2.png', 'path': 'party1/people/2.png'},
+    {'name': 'party1/people/3.png', 'path': 'party1/people/3.png'},
+    {'name': 'party1/people/4.png', 'path': 'party1/people/4.png'},
+    {'name': 'party1/people/5.png', 'path': 'party1/people/5.png'},
+    {'name': 'party1/socialSit/1/1.jpg', 'path': 'party1/socialSit/1/1.jpg'},
+    {'name': 'party1/socialSit/2/1.jpg', 'path': 'party1/socialSit/2/1.jpg'},
+    {'name': 'party1/socialSit/3/1.jpg', 'path': 'party1/socialSit/3/1.jpg'},
+    {'name': 'party1/socialSit/4/1.jpg', 'path': 'party1/socialSit/4/1.jpg'},
+    {'name': 'party1/socialSit/5/1.jpg', 'path': 'party1/socialSit/5/1.jpg'},
+    {'name': 'party1/socialSit/1/2.jpg', 'path': 'party1/socialSit/1/2.jpg'},
+    {'name': 'party1/socialSit/2/2.jpg', 'path': 'party1/socialSit/2/2.jpg'},
+    {'name': 'party1/socialSit/3/2.jpg', 'path': 'party1/socialSit/3/2.jpg'},
+    {'name': 'party1/socialSit/4/2.jpg', 'path': 'party1/socialSit/4/2.jpg'},
+    {'name': 'party1/socialSit/5/2.jpg', 'path': 'party1/socialSit/5/2.jpg'},
+    {'name': 'party1/socgroups/1/1.jpg', 'path': 'party1/socgroups/1/1.jpg'},
+    {'name': 'party1/socgroups/2/1.jpg', 'path': 'party1/socgroups/2/1.jpg'},
+    {'name': 'party1/socgroups/3/1.jpg', 'path': 'party1/socgroups/3/1.jpg'},
+    {'name': 'party1/socgroups/4/1.jpg', 'path': 'party1/socgroups/4/1.jpg'},
+    {'name': 'party1/socgroups/5/1.jpg', 'path': 'party1/socgroups/5/1.jpg'},
+    {'name': 'party1/socgroups/1/2.jpg', 'path': 'party1/socgroups/1/2.jpg'},
+    {'name': 'party1/socgroups/2/2.jpg', 'path': 'party1/socgroups/2/2.jpg'},
+    {'name': 'party1/socgroups/3/2.jpg', 'path': 'party1/socgroups/3/2.jpg'},
+    {'name': 'party1/socgroups/4/2.jpg', 'path': 'party1/socgroups/4/2.jpg'},
+    {'name': 'party1/socgroups/5/2.jpg', 'path': 'party1/socgroups/5/2.jpg'},
+    {'name': 'party1/locations/1/1.jpg', 'path': 'party1/locations/1/1.jpg'},
+    {'name': 'party1/locations/2/1.jpg', 'path': 'party1/locations/2/1.jpg'},
+    {'name': 'party1/locations/3/1.jpg', 'path': 'party1/locations/3/1.jpg'},
+    {'name': 'party1/locations/4/1.jpg', 'path': 'party1/locations/4/1.jpg'},
+    {'name': 'party1/locations/5/1.jpg', 'path': 'party1/locations/5/1.jpg'},
+    {'name': 'party1/locations/1/2.jpg', 'path': 'party1/locations/1/2.jpg'},
+    {'name': 'party1/locations/2/2.jpg', 'path': 'party1/locations/2/2.jpg'},
+    {'name': 'party1/locations/3/2.jpg', 'path': 'party1/locations/3/2.jpg'},
+    {'name': 'party1/locations/4/2.jpg', 'path': 'party1/locations/4/2.jpg'},
+    {'name': 'party1/locations/5/2.jpg', 'path': 'party1/locations/5/2.jpg'},
   ]
 });
 
@@ -127,17 +127,18 @@ const flowScheduler = new Scheduler(psychoJS);
 const dialogCancelScheduler = new Scheduler(psychoJS);
 psychoJS.scheduleCondition(function() { return (psychoJS.gui.dialogComponent.button === 'OK'); }, flowScheduler, dialogCancelScheduler);
 
+for (let j = 1; j < 2+1; j++){
 flowScheduler.add(setText,"You'll view sets of 3 images comprising locations, groups and activities corresponding to an individual. When viewing the 3 images, please imagine the listed person performing the given activity in the displayed location with the presented group of people. Please try to remember these events that you imagine since they'll be needed to accurately assign the presented individual to specific roles in a TASKNAME.");
 flowScheduler.add(routText);
 flowScheduler.add(routAbeg)
 flowScheduler.add(routA,1,1);
 flowScheduler.add(routAEnd)
-/flowScheduler.add(routBbeg,1,1,2);
-flowScheduler.add(routB,1,2);
-flowScheduler.add(routBIters,2,2);
+flowScheduler.add(routBbeg,1,1,j);
+flowScheduler.add(routB,1,j);
+flowScheduler.add(routBIters,2,j);
 flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first, second, and third best for each role in TASKNAME. To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. Also, note that no individual can be ranked first, second, or third in multiple roles")
 flowScheduler.add(routText);
-flowScheduler.add(routCbeg,2);
+flowScheduler.add(routCbeg,j);
 flowScheduler.add(routC);
 flowScheduler.add(routCConfbeg);
 flowScheduler.add(routCConf);
@@ -145,6 +146,7 @@ flowScheduler.add(setText,"You'll now view a series of reference images. You wil
 flowScheduler.add(routText);
 flowScheduler.add(routDbeg,10);
 flowScheduler.add(routD,10);
+}
 flowScheduler.add(quitPsychoJS, '', true);
 
 dialogCancelScheduler.add(quitPsychoJS, '', false);
