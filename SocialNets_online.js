@@ -206,8 +206,8 @@ var TASKNAME = ["Birthday Party",
     "Home Construction"];
 
 var tasksAll = [["DJ", "Desserts", "Barbecue", "Decorations", "Clean Up"],
-            ["Fisher", "Deckhand", "Steering", "Captain", "Radio Operator"],
-            ["Experimenter", "PowerPoint Maker", "Report Writer", "Data Analyst", "Participant Recruiter"],
+            ["Fisher", "Deckhand", "Cook", "Captain", "Radio Operator"],
+            ["Experimenter", "Presentation Maker", "Report Writer", "Data Analyst", "Participant Recruiter"],
             ["Contractor", "Architect", "Interior Decorations", "Landscaper", "Realtor"]];
 
 var parties = 4;
@@ -1050,7 +1050,7 @@ var pind,eind,corruption,otherchoice,bwgroup
 var choices,confidences,RTs,confRTs,correct;
 var doingConf,selectedLR,leftorRight;
 var choice;
-var Stimuls;
+var Stimuls, confRats;
 var situationIm,socgroupsIm,locationIm;
 
 async function routDbeg(trials){
@@ -1079,6 +1079,7 @@ async function routDbeg(trials){
     psychoJS.experiment.addData("Reference",corruption);
     psychoJS.experiment.addData("Query", otherchoice);
     psychoJS.experiment.addData("BWgroup", bwgroup);
+    confRats = 0
     return Scheduler.Event.NEXT;
 }
 
@@ -1278,7 +1279,8 @@ function routD(trials){
                 Stimuls[1].autoDraw = false;
                 Stimuls[2].autoDraw = false;
                 Stimuls = [];
-                doingConf = true;
+                if (confRats >= 5){doingConf = false}
+                else{doingConf = true;confRats +=1};
                 slider.autoDraw = true;
                 textConf.autoDraw = true;
                 notReady = true;
@@ -1293,7 +1295,8 @@ function routD(trials){
                 Stimuls[1].autoDraw = false;
                 Stimuls[2].autoDraw = false;
                 Stimuls = [];
-                doingConf = true;
+                if (confRats >= 5){doingConf = false}
+                else{doingConf = true;confRats +=1};
                 slider.autoDraw = true;
                 textConf.autoDraw = true;
                 notReady = true;
