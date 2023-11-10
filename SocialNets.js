@@ -217,9 +217,9 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(routAbeg)
     flowScheduler.add(routA,1,1);
     flowScheduler.add(routAEnd)
-    flowScheduler.add(routBbeg,1,1,j);
-    flowScheduler.add(routB,10,j);
-    flowScheduler.add(routBIters,10,j);
+    flowScheduler.add(routBbeg,1,10,j);
+    flowScheduler.add(routB,1,j);
+    flowScheduler.add(routBIters,1,j);
     flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first, second, and third best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. Also, note that no individual can be ranked first, second, or third in multiple roles")
     flowScheduler.add(routText);
     flowScheduler.add(routCbeg,j);
