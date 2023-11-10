@@ -1279,12 +1279,25 @@ function routD(trials){
                 Stimuls[1].autoDraw = false;
                 Stimuls[2].autoDraw = false;
                 Stimuls = [];
-                if (confRats >= 5){doingConf = false}
-                else{doingConf = true;confRats +=1};
-                slider.autoDraw = true;
-                textConf.autoDraw = true;
-                notReady = true;
-                timeCF = clock.getTime()
+                if (confRats >= 5){
+                    slider.autoDraw = false;
+                    textConf.autoDraw = false;
+                    doingConf = false;
+                    notReady = false;
+                    postselect = true;
+                    slider.reset();
+                    tFixation = clock.getTime();
+                    choice = 0;
+                    trialT += 1;
+                }
+                else{
+                    doingConf = true;
+                    confRats +=1;
+                    slider.autoDraw = true;
+                    textConf.autoDraw = true;
+                    notReady = true;
+                    timeCF = clock.getTime();
+                }
             }
             else if (ready.keys == 'right'){
                 choice = 1;
@@ -1295,12 +1308,26 @@ function routD(trials){
                 Stimuls[1].autoDraw = false;
                 Stimuls[2].autoDraw = false;
                 Stimuls = [];
-                if (confRats >= 5){doingConf = false}
-                else{doingConf = true;confRats +=1};
-                slider.autoDraw = true;
-                textConf.autoDraw = true;
-                notReady = true;
-                timeCF = clock.getTime()
+                if (confRats >= 5){
+                    slider.autoDraw = false;
+                    textConf.autoDraw = false;
+                    doingConf = false;
+                    notReady = false;
+                    postselect = true;
+                    slider.reset();
+                    tFixation = clock.getTime();
+                    choice = 0;
+                    trialT += 1;
+                }
+                else{
+                    doingConf = true;
+                    confRats +=1;
+                    slider.autoDraw = true;
+                    textConf.autoDraw = true;
+                    notReady = true;
+                    timeCF = clock.getTime();
+                }
+
             };
         };
         let mRT = 0;for(let z = 0; z < RTs.length;z++){mRT += RTs[z]};
