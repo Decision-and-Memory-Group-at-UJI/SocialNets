@@ -340,7 +340,7 @@ var trialT;
 var selected,postselect,iters,indices;
 var groupays,locays,sitays;
 var winPrevSize;
-async function routBbeg(time,trialtime,nParty){
+async function routBbeg(time,nParty){
     let party = "party" + nParty;
     winPrevSize = psychoJS.window.size.map((s)=>s);
     Bim_positions = {0: [0, 0.25],
