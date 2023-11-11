@@ -1013,7 +1013,7 @@ async function routCConfbeg(){
     notReady = true;
     timeCF = clock.getTime();
     textConf = new visual.TextStim({win:psychoJS.window, name:'endText',
-                text:'How confident are you? Adjust the slider, and press spacebar to continue',
+                text:'How confident are you? Click the slider, and drag the red circle to your confidence level. Then, press spacebar to continue',
                 font:'Arial',
                 units:'height', pos:[0, 0.35], height:0.05, wrapWidth:null, ori:0,
                 color:'white', colorSpace:'rgb', opacity:1,
