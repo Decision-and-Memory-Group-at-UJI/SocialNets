@@ -292,6 +292,10 @@ async function saveRes(){
     }
 }
 async function routAbeg(){
+    if (psychoJS.experiment.isEntryEmpty()) {
+      psychoJS.experiment.nextEntry();
+    }
+
     frames = 0;
      tFixation = clock.getTime() 
     // Setup stimulus
@@ -993,7 +997,6 @@ function routC(){
         for (let i = 0; i < 3; i++){
             rankStims[i].autoDraw = false;
         }
-
         for (let key = 0; key < lineKeys.length; key++){
             let item = lineKeys[key];
             allKeys = item.keys();
@@ -1002,8 +1005,9 @@ function routC(){
             for (let i = 0; i < sortedKeys; i++){newdict[i] = item[sortedKeys[i]]};
             lineKeys[key] = newdict;
         };
+        psychoJS.experiment.addData("rankDec",JSON.stringify(lineKeys));
+
         questStim.autoDraw = false;
-        psychoJS.experiment.addData("rankDec",lineKeys);
         return Scheduler.Event.NEXT;
     }
 };
@@ -1365,7 +1369,8 @@ function routDc(){
 }
 
 function setText(fill){
-    instrText.text = fill;
+    ready.clearEvents();
+    instrText.text = fill + "\n Press any key to Continue";
     instrText.autoDraw = true;
     notReady = true
     winPrevSize = psychoJS.window.size;
@@ -1381,12 +1386,13 @@ async function routText(fill){
     if(notReady){
         let keys = ready.getKeys({keyList:[], waitRelease:false});
         _ready_allKeys = [].concat(keys);
+        console.log(_ready_allKeys.length);
         if (_ready_allKeys.length > 0) {
             ready.keys = _ready_allKeys[_ready_allKeys.length - 1].name;  // just the last key pressed
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
             if (ready.keys == "escape"){return quitPsychoJS()}
-            if (ready.keys == "k"){
+            else{//if(ready.keys == "k"){
                 notReady = false;
                 instrText.autoDraw = false;
                 return Scheduler.Event.NEXT;
