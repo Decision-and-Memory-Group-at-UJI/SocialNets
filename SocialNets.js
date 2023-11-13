@@ -992,7 +992,6 @@ async function routDbeg(trials){
         eind[P1eooch[i]] = 1;eind[P1eonoch[i]] = 1;eind[P2eooch[i]] = 1;eind[P2eonoch[i]] = 1;eind[P3eooch[i]] = 1;
         eind[P3eonoch[i]] = 1;eind[P4eooch[i]] = 1;eind[P4eonoch[i]] = 1;eind[P5eooch[i]] = 1;eind[P5eonoch[i]] = 1;
     }
-
     for(let i = 1; i < pind.length - 1; i++){
         if(pind[i] == pind[i-1]){
             if(bwgroup[i] != bwgroup[i-1]){
@@ -1007,8 +1006,6 @@ async function routDbeg(trials){
             }
         }
     }
-    console.log(bwgroup.reduce((psum,a)=>psum+a,0))
-    console.log(otherchoice.reduce((psum,a)=>psum+a,0))
 
     choices = [];
     confidences = [];
