@@ -528,7 +528,6 @@ function routB(time,trialtime){
             let offset = [0,-0.2]
             let height = 0.05
             let ratio = [psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
-            console.log(ratio);
             ratio = [1,1];
             for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = [k][kk]*ratio[kk]}};
             for(let k=1; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){BLcopy[kk] = (BLcopy[k][kk])*ratio[kk]}};
@@ -1149,17 +1148,14 @@ function routD(trials){
         let c = 0;
         let chooses = [];
         let choose;
-        console.log(t,trials,p,e,corr,oc,bw,c);
         if (corr == 0){
             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
             if (oc == 0){
                 if (bw == 1){
                     for (let i=0; i < groupays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(groupays[i][j])}}}
                     choose = chooses[getRandInt(0,chooses.length)];
-                    console.log("HELLO2");
                 }
-                else{console.log("HELLO");choose = groupays[p][e^1]};
-                console.log(bw);
+                else{choose = groupays[p][e^1]};
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:groupays[p][e]}));
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
             }
@@ -1167,10 +1163,8 @@ function routD(trials){
                 if (bw == 1){
                     for (let i=0; i < locays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(locays[i][j])}}}
                     choose = chooses[getRandInt(0,chooses.length)];
-                    console.log("HELLO2");
                 }
-                else{console.log("HELLO");choose = locays[p][e^1]};
-                console.log(bw);
+                else{choose = locays[p][e^1]};
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:locays[p][e]}));
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
             };
@@ -1181,10 +1175,8 @@ function routD(trials){
                 if (bw == 1){
                     for (let i=0; i < sitays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(sitays[i][j])}}}
                     choose = chooses[getRandInt(0,chooses.length)];
-                    console.log("HELLO2");
                 }
-                else{console.log("HELLO");choose = sitays[p][e^1]};
-                console.log(bw);
+                else{choose = sitays[p][e^1]};
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
             }
@@ -1192,10 +1184,8 @@ function routD(trials){
                 if (bw == 1){
                     for (let i=0; i < locays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(locays[i][j])}}}
                     choose = chooses[getRandInt(0,chooses.length)];
-                    console.log("HELLO2");
                 }
-                else{console.log("HELLO");choose = locays[p][e^1]};
-                console.log(bw);
+                else{choose = locays[p][e^1]};
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:locays[p][e]}));
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
             };
@@ -1206,10 +1196,8 @@ function routD(trials){
                 if (bw == 1){
                     for (let i=0; i < sitays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(sitays[i][j])}}}
                     choose = chooses[getRandInt(0,chooses.length)];
-                    console.log("HELLO2");
                 }
-                else{console.log("HELLO");choose = sitays[p][e^1]};
-                console.log(bw);
+                else{choose = sitays[p][e^1]};
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
             }
@@ -1217,10 +1205,8 @@ function routD(trials){
                 if (bw == 1){
                     for (let i=0; i < groupays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(groupays[i][j])}}}
                     choose = chooses[getRandInt(0,chooses.length)];
-                    console.log("HELLO2");
                 }
-                else{console.log("HELLO");choose = groupays[p][e^1]};
-                console.log(bw);
+                else{choose = groupays[p][e^1]};
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:groupays[p][e]}));
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
             };
@@ -1386,7 +1372,6 @@ async function routText(fill){
     if(notReady){
         let keys = ready.getKeys({keyList:[], waitRelease:false});
         _ready_allKeys = [].concat(keys);
-        console.log(_ready_allKeys.length);
         if (_ready_allKeys.length > 0) {
             ready.keys = _ready_allKeys[_ready_allKeys.length - 1].name;  // just the last key pressed
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
