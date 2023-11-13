@@ -32,6 +32,7 @@ psychoJS.openWindow({
   units: 'height',
   waitBlanking: true
 });
+psychoJS.window.color = new util.Color('black')
 let expName = 'SocialNets';
 let expInfo = {
     'participant': '',
@@ -503,6 +504,7 @@ function routB(iterations,trialtime){
                 Person.autoDraw = false
                 SocialGroup.autoDraw = false
                 Location.autoDraw = false
+                for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false};
                 return Scheduler.Event.NEXT}
         }
         frames += 1;
