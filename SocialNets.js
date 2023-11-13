@@ -347,10 +347,10 @@ var winPrevSize;
 async function routBbeg(time,nParty){
     let party = "party" + nParty;
     winPrevSize = psychoJS.window.size.map((s)=>s);
-    Bim_positions = {0: [0, 0.25],
-                1: [0.6, -0.25],
-                2: [-0.0, -0.25],
-                3: [-0.6, -0.25]};
+    Bim_positions = {0: [0, 0.3],
+                1: [0.6, -0.15],
+                2: [-0.0, -0.15],
+                3: [-0.6, -0.15]};
 
 
     BLim_positions = {1: [0.6, -0.45],
@@ -494,8 +494,8 @@ function routB(time,trialtime){
         for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
         for(let k=1; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){TextStims[k-1].pos[kk] = (BLcopy[k][kk])*ratio[kk]}};
         for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].height = height*ratio[1]};
-        Psize = [0.25*ratio[0],0.25*ratio[1]];
-        Ssize = [0.33*ratio[0],0.33*ratio[1]];
+        Psize = [0.36*ratio[0],0.36*ratio[1]];
+        Ssize = [0.475*ratio[0],0.475*ratio[1]];
 
         Person = new visual.ImageStim({win:psychoJS.window,image:person,size:Psize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[0],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
@@ -532,8 +532,8 @@ function routB(time,trialtime){
             ratio = [1,1];
             for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = [k][kk]*ratio[kk]}};
             for(let k=1; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){BLcopy[kk] = (BLcopy[k][kk])*ratio[kk]}};
-            Psize = [0.25*ratio[0],0.25*ratio[1]];
-            Ssize = [0.33*ratio[0],0.33*ratio[1]];
+            Psize = [0.36*ratio[0],0.36*ratio[1]];
+            Ssize = [0.475*ratio[0],0.475*ratio[1]];
             Person.size = Psize;
             SocialSit.size = Ssize;
             Location.size = Ssize;
@@ -623,8 +623,8 @@ function routBIters(iterations,trialtime){
         let ratio = [psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
         for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
         for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].height = height*ratio[1]};
-        Psize = [0.25*ratio[0],0.25*ratio[1]];
-        Ssize = [0.33*ratio[0],0.33*ratio[1]];
+        Psize = [0.36*ratio[0],0.36*ratio[1]];
+        Ssize = [0.475*ratio[0],0.475*ratio[1]];
 
         Person = new visual.ImageStim({win:psychoJS.window,image:person,size:Psize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[0],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
 });
@@ -654,8 +654,8 @@ function routBIters(iterations,trialtime){
             let ratio = [psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
             ratio = [1,1];
             for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
-            Psize = [0.25*ratio[0],0.25*ratio[1]];
-            Ssize = [0.33*ratio[0],0.33*ratio[1]];
+            Psize = [0.36*ratio[0],0.36*ratio[1]];
+            Ssize = [0.475*ratio[0],0.475*ratio[1]];
             Person.size = Psize;
             SocialSit.size = Ssize;
             Location.size = Ssize;
