@@ -229,7 +229,7 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(setText,"You'll now view a series of reference images. You will need to choose which of the two images at the bottom left and right of the screen was previously paired with a reference image as quickly and accurately as possible by either pressing the left or right button on the keyboard.")
     flowScheduler.add(routText);
     flowScheduler.add(routDbeg,10);
-    flowScheduler.add(routD,10);
+    flowScheduler.add(routD,40);
 }
 flowScheduler.add(quitPsychoJS, '', true);
 
@@ -749,15 +749,23 @@ async function routCbeg(nParty){
     for (let i = 0; i < people.length; i++){linetKeys[i] = {}};
 
     for (let i =0; i < tasks.length; i++){
-        for (let j = 0; j < 3; j++){
-            lines[i][j] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:[tStim[i].pos[0]+0.25+0.25*j,tStim[i].pos[1]],size:[0.1,0.1]});
+        for (let j = 0; j < 2; j++){
+            let jj = j;
+            if (j == 1){
+                jj += 1;
+            }
+            lines[i][j] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:[tStim[i].pos[0]+0.25+0.25*jj,tStim[i].pos[1]],size:[0.1,0.1]});
             lines[i][j].autoDraw = true
             linetKeys[i][j] = null;
         };
     };
     rankStims = [];
-    for (let j = 0; j < 3; j++){
-        let pos = [tStim[people.length-1].pos[0] + 0.25+0.25*j,0.4];
+    for (let j = 0; j < 2; j++){
+        let jj = j;
+        if (j == 1){
+            jj += 1;
+        }
+        let pos = [tStim[people.length-1].pos[0] + 0.25+0.25*jj,0.4];
         rankStims.push(new visual.TextStim({win:psychoJS.window,text:j+1,pos:pos,
                     height:0.05, wrapWidth:null, ori:0, color:'white',
                     colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'}));
@@ -800,9 +808,16 @@ function routC(){
                 tStim[i].pos = Copy_Ctim_positions[i];
                 tStim[i].height = 0.05*ratio[1];
             };
-            for(let j = 0; j < 3; j++){rankStims[j].pos = [tStim[people.length-1].pos[0] + (0.25+0.25*j)*ratio[0],0.4*ratio[1]];rankStims[j].height = 0.05*ratio[1]};
+            for(let j = 0; j < 2; j++){
+                let jj = j;
+                if (j == 1){
+                    jj += 1;
+                }
+                rankStims[j].pos = [tStim[people.length-1].pos[0] + (0.25+0.25*jj)*ratio[0],0.4*ratio[1]];
+                rankStims[j].height = 0.05*ratio[1]
+            };
             for (let i =0; i < tasks.length; i++){
-                for (let j = 0; j < 3; j++){
+                for (let j = 0; j < 2; j++){
                     lines[i][j].pos = [tStim[i].pos[0]+(0.25+0.25*j)*ratio[0],tStim[i].pos[1]];
                     lines[i][j].size = [0.1*ratio[0],0.1*ratio[1]];
                 }
@@ -817,12 +832,12 @@ function routC(){
             if (ready.keys == 'r'){
                 for (let i = 0; i < tasks.length; i++){
                     lineKeys[i] = {};
-                    for (let j = 0; j < 3; j++){lines[i][j].autoDraw=false}
+                    for (let j = 0; j < 2; j++){lines[i][j].autoDraw=false}
                     lines[i] = {};
                 };
                 for (let i = 0; i< people.length; i++){linetKeys[i] = {}};
                 for (let i = 0; i < tasks.length; i++){
-                    for (let j = 0; j < 3; j++){
+                    for (let j = 0; j < 2; j++){
                         lines[i][j] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:[tStim[i].pos[0]+0.25+0.25*j,tStim[i].pos[1]],size:[0.1,0.1]});
                         lines[i][j].autoDraw=true
                         linetKeys[i][j] = null;
@@ -842,8 +857,8 @@ function routC(){
         for (let i = 0; i < Object.keys(lineKeys).length; i++){
             let l = lineKeys[i];
             let temp = Object.keys(l).length
-            if (temp == 3 && pStim[i].opacity != 0.8){pStim[i].opacity= 0.8;console.log("Turning RED")}
-            else if (temp != 3 && pStim[i].opacity!= 1){pStim[i].opacity= 1; console.log("TURNING WHITE")};
+            if (temp == 2 && pStim[i].opacity != 0.8){pStim[i].opacity= 0.8;console.log("Turning RED")}
+            else if (temp != 2 && pStim[i].opacity!= 1){pStim[i].opacity= 1; console.log("TURNING WHITE")};
         };
 
         let clines = 0;
@@ -855,10 +870,10 @@ function routC(){
                     temp += 1;
             };
             clines += temp;
-            if (temp == 3 && tStim[i].color != [1,-1,-1] != 'red'){tStim[i].color='red'}
+            if (temp == 2 && tStim[i].color != [1,-1,-1] != 'red'){tStim[i].color='red'}
             else if (tStim[i].color != 'white'){tStim[i].color='white'};
         };
-        if (clines == 3*tasks.length){
+        if (clines == 2*tasks.length){
             okroutRun = true;
             questStim.autoDraw = true;
         }
@@ -868,12 +883,12 @@ function routC(){
             if (keys == 'r'){
                 for (let i = 0; i < tasks.length; i++){
                     lineKeys[i] = {};
-                    for (let j = 0; j < 3; j++){lines[i][j].autoDraw = false};
+                    for (let j = 0; j < 2; j++){lines[i][j].autoDraw = false};
                     lines[i] = {};
                 };
                 for (let i = 0; i < people.length; i++){linetKeys[i] = {}};
                 for (let i = 0; i < tasks.length; i++){
-                    for (let j = 0; j < 3; j++){
+                    for (let j = 0; j < 2; j++){
                         lines[i][j] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:[tStim[i].pos[0]+0.25+0.25*j,tStim[i].pos[1]],size:[0.1,0.1]});
                         lines[i][j].autoDraw = true;
                         linetKeys[i][j] = null;
@@ -912,7 +927,7 @@ function routC(){
                 let rank = -1;
                 for (let k = 0; k < 5 ; k++){
                     let item = lines[k];
-                    for (let kk = 0; kk < 3; kk++){
+                    for (let kk = 0; kk < 2; kk++){
                         let it = item[kk];
                         if (it.contains(mouse)){
                             key = k;
@@ -930,7 +945,12 @@ function routC(){
                         let pastkey = lineKeys[mousePersonIndex][rank];
                         delete lineKeys[mousePersonIndex][rank];
                         if (rank in linetKeys[pastkey]){linetKeys[pastkey][rank] = null};
-                        let pos = [tStim[pastkey].pos[0] + (0.25+0.25*rank)*ratio[0],tStim[pastkey].pos[1]];
+                        let pos;
+                        if (rank == 0){
+                            pos = [tStim[pastkey].pos[0] + (0.25+0.25*rank)*ratio[0],tStim[pastkey].pos[1]];
+                        }else{
+                            pos = [tStim[pastkey].pos[0] + (0.25+0.25*(rank+1))*ratio[0],tStim[pastkey].pos[1]];
+                        }
                         lines[pastkey][rank].autoDraw = false;
                         lines[pastkey][rank] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:pos,size:[0.1*ratio[0],0.1*ratio[1]]});
                         lines[pastkey][rank].autoDraw = true;
@@ -940,10 +960,14 @@ function routC(){
                     if (pastrank != -1){
                         if (pastrank in linetKeys[key]){linetKeys[key][pastrank] = null};
                         if (pastrank in lineKeys[mousePersonIndex]){delete lineKeys[mousePersonIndex][pastrank]};
-                        let pos = [tStim[key].pos[0] + (0.25+0.25*pastrank)*ratio[0],tStim[key].pos[1]];
+                        let pos;
+                        if (pastrank==0){
+                            pos = [tStim[key].pos[0] + (0.25+0.25*pastrank)*ratio[0],tStim[key].pos[1]];
+                        }else{
+                            pos = [tStim[key].pos[0] + (0.25+0.25*(pastrank+1))*ratio[0],tStim[key].pos[1]];
+                        }
                         lines[key][pastrank].autoDraw = false;
-                        lines[key][pastrank] = new
-                            visual.Rect({win:psychoJS.window, fillColor:'white',pos:pos,size:[0.1*ratio[0],0.1*ratio[1]]});
+                        lines[key][pastrank] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:pos,size:[0.1*ratio[0],0.1*ratio[1]]});
                         lines[key][pastrank].autoDraw = true;
                     };
                     // If someone is already occupying this task rank, properly
@@ -952,8 +976,7 @@ function routC(){
                     lineKeys[mousePersonIndex][rank] = key;
                     linetKeys[key][rank] = mousePersonIndex;
                     lines[key][rank].autoDraw = false;
-                    lines[key][rank] = new
-                        visual.ImageStim({win:psychoJS.window, image:people[mousePersonIndex],pos:lines[key][rank].pos,size:[0.1*ratio[1],0.1*ratio[1]]});
+                    lines[key][rank] = new visual.ImageStim({win:psychoJS.window, image:people[mousePersonIndex],pos:lines[key][rank].pos,size:[0.1*ratio[1],0.1*ratio[1]]});
                     lines[key][rank].autoDraw = true;
                     console.log(key,"to",mousePersonIndex);
                 };
@@ -972,7 +995,7 @@ function routC(){
             pStim[i].autoDraw = false;
             tStim[i].autoDraw = false;
         }
-        for (let i = 0; i < 3; i++){
+        for (let i = 0; i < 2; i++){
             rankStims[i].autoDraw = false;
         }
         for (let key = 0; key < lineKeys.length; key++){
@@ -1037,15 +1060,43 @@ var situationIm,socgroupsIm,locationIm;
 
 async function routDbeg(trials){
 
-    pind = shuffler([...Array(trials).keys()].map((i)=>getRandInt(0,5)));
+    pind = shuffler([...Array(4*trials).keys()].map((i)=>getRandInt(0,5)));
     // Episode Select
-    eind = shuffler([...Array(trials).keys()].map((i)=>getRandInt(0,2)));
+    eind = shuffler([...Array(4*trials).keys()].map((i)=>getRandInt(0,2)));
     // Reference cue
-    corruption = shuffler([...Array(trials).keys()].map((i)=>getRandInt(0,3)));
-    // Query cues
-    otherchoice = shuffler([...Array(trials).keys()].map((i)=>getRandInt(0,2)));
+    otherchoice = [...Array(4*trials).keys()].map((i)=>0);
+    let toFill = shuffler([...Array(4*trials).keys()]);
+    for(let i = 0; i < 2*trials; i++){
+        otherchoice[toFill[i]] = 1;
+    }
+
     // Between or within person corruption
-    bwgroup = shuffler([...Array(trials).keys()].map((i)=>getRandInt(0,2)));
+    bwgroup = [...Array(4*trials).keys()].map((i)=>0);
+    let indRefs = shuffler([...Array(4*trials).keys()].filter((i) => otherchoice[i]));
+
+    for(let i = 0; i < trials;  i++){
+        bwgroup[indRefs[i]] = 1;
+    }
+    let indORefs = shuffler([...Array(4*trials).keys()].filter((i) => !otherchoice[i]));
+    for(let i = 0; i < trials;  i++){
+        bwgroup[indORefs[i]] = 1;
+    }
+
+    for(let i = 1; i < pind.length - 1; i++){
+        if(pind[i] == pind[i-1]){
+            if(bwgroup[i] != bwgroup[i-1]){
+                if(otherchoice[i] == otherchoice[i-1]){
+                    let tempb = bwgroup[i].valueOf();
+                    let tempo = otherchoice[i].valueOf();
+                    bwgroup[i] = bwgroup[i+1].valueOf();
+                    otherchoice[i] = otherchoice[i+1].valueOf();
+                    otherchoice[i+1] = tempo;
+                    bwgroup[i+1] = tempb;
+                }
+            }
+        }
+    }
+
     choices = [];
     confidences = [];
     RTs = [];
@@ -1058,7 +1109,6 @@ async function routDbeg(trials){
     selectedLR = false;
     postselect = false;
     Stimuls = [];
-    psychoJS.experiment.addData("Reference",corruption);
     psychoJS.experiment.addData("Query", otherchoice);
     psychoJS.experiment.addData("BWgroup", bwgroup);
     confRats = 0
@@ -1121,75 +1171,32 @@ function routD(trials){
         selectedLR = true;
         let p = pind[t];
         let e = eind[t];
-        let corr = corruption[t];
         let oc = otherchoice[t];
         let bw = bwgroup[t];
         let c = 0;
         let chooses = [];
         let choose;
-        if (corr == 0){
-            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
-            if (oc == 0){
-                if (bw == 1){
-                    for (let i=0; i < groupays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(groupays[i][j])}}}
-                    choose = chooses[getRandInt(0,chooses.length)];
-                }
-                else{choose = groupays[p][e^1]};
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:groupays[p][e]}));
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
-            }
-            else if (oc == 1){
-                if (bw == 1){
-                    for (let i=0; i < locays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(locays[i][j])}}}
-                    choose = chooses[getRandInt(0,chooses.length)];
-                }
-                else{choose = locays[p][e^1]};
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:locays[p][e]}));
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
-            };
-        }
-        else if (corr == 1){
-            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:groupays[p][e]}));
-            if (oc == 0){
-                if (bw == 1){
-                    for (let i=0; i < sitays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(sitays[i][j])}}}
-                    choose = chooses[getRandInt(0,chooses.length)];
-                }
-                else{choose = sitays[p][e^1]};
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
-            }
-            else if (oc == 1){
-                if (bw == 1){
-                    for (let i=0; i < locays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(locays[i][j])}}}
-                    choose = chooses[getRandInt(0,chooses.length)];
-                }
-                else{choose = locays[p][e^1]};
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:locays[p][e]}));
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
-            };
-        }
-        else if (corr == 2){
-            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:locays[p][e]}));
-            if (oc == 0){
-                if (bw == 1){
-                    for (let i=0; i < sitays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(sitays[i][j])}}}
-                    choose = chooses[getRandInt(0,chooses.length)];
-                }
-                else{choose = sitays[p][e^1]};
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
-            }
-            else if (oc == 1){
-                if (bw == 1){
-                    for (let i=0; i < groupays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(groupays[i][j])}}}
-                    choose = chooses[getRandInt(0,chooses.length)];
-                }
-                else{choose = groupays[p][e^1]};
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:groupays[p][e]}));
-                Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
-            };
-        };
+
+         Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
+         if (oc == 0){
+             if (bw == 1){
+                 for (let i=0; i < groupays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(groupays[i][j])}}}
+                 choose = chooses[getRandInt(0,chooses.length)];
+             }
+             else{choose = groupays[p][e^1]};
+             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:groupays[p][e]}));
+             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
+         }
+         else if (oc == 1){
+             if (bw == 1){
+                 for (let i=0; i < locays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(locays[i][j])}}}
+                 choose = chooses[getRandInt(0,chooses.length)];
+             }
+             else{choose = locays[p][e^1]};
+             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:locays[p][e]}));
+             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
+         };
+
         for (let k = 1; k < Stimuls.length; k++){Stimuls[k].size = [.45, .45]};
         Stimuls[0].size = [.4,.4];
         Stimuls[0].pos = Bim_positions[0];
