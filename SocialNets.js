@@ -45,7 +45,6 @@ psychoJS.schedule(psychoJS.gui.DlgFromDict({
   title: expName
 }));
 
-var defaultSize = [1440,815]
 
 psychoJS.start({
   expName: expName,
@@ -445,7 +444,7 @@ function routB(iterations,trialtime){
         Bcopy = JSON.parse(JSON.stringify(Bim_positions));
         let offset = [0,-0.2]
         let height = 0.05
-        let ratio = [1,1];//;[psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
+        let ratio = [1,1];
         for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
         for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].height = height*ratio[1]};
         Psize = [0.36*ratio[0],0.36*ratio[1]];
@@ -477,7 +476,7 @@ function routB(iterations,trialtime){
             Bcopy = JSON.parse(JSON.stringify(Bim_positions));
             let offset = [0,-0.2]
             let height = 0.05
-            let ratio = [1,1];//;[psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
+            let ratio = [1,1];
             for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
             Psize = [0.36*ratio[0],0.36*ratio[1]];
             Ssize = [0.475*ratio[0],0.475*ratio[1]];
@@ -646,7 +645,7 @@ function routC(){
             winPrevSize = psychoJS.window.size.map((s)=>s);
             let Copy_Cpim_positions = JSON.parse(JSON.stringify(Cpim_positions));
             let Copy_Ctim_positions = JSON.parse(JSON.stringify(Ctim_positions));
-            let ratio = [1,1];//;[psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]];
+            let ratio = [1,1];
             for (let i = 0; i < people.length; i++){
                 for (let j = 0; j < Cpim_positions[i].length; j++){Copy_Cpim_positions[i][j] = Copy_Cpim_positions[i][j]*ratio[j]};
                 pStim[i].pos = Copy_Cpim_positions[i];
@@ -787,7 +786,7 @@ function routC(){
                     if (key != -1 && rank != -1)
                         break;
                 };
-                let ratio = [1,1];//;[winPrevSize[0]/defaultSize[0],winPrevSize[1]/defaultSize[1]]
+                let ratio = [1,1];
                 if (key != -1 && rank != -1){
                     // If this person already has this rank occupied
                     if (rank in lineKeys[mousePersonIndex]){
@@ -1129,7 +1128,7 @@ function routD(trials){
     if (choice == 0){
         if (psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
             winPrevSize = psychoJS.window.size.map((s)=>s);
-            let ratio = [1,1];//;[winPrevSize[0]/defaultSize[0],winPrevSize[1]/defaultSize[1]];
+            let ratio = [1,1];
             Stimuls[0].pos =[Bim_positions[0][0]*ratio[0],Bim_positions[0][1]*ratio[1]-0.05];
             if (correct[correct.length-1] == -1){
                 Stimuls[1].pos =[Bim_positions[3][0]*ratio[0],Bim_positions[3][1]*ratio[1]-0.05];
@@ -1231,7 +1230,7 @@ function routD(trials){
 function routDc(){
     if (psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
         winPrevSize = psychoJS.window.size.map((s)=>s);
-        let ratio = [1,1];//;[winPrevSize[0]/defaultSize[0],winPrevSize[1]/defaultSize[1]];
+        let ratio = [1,1];
         textConf.height = 0.05*ratio[1];
         slider.size = [1*ratio[0],0.1*ratio[1]];
     }
@@ -1264,7 +1263,7 @@ function setText(fill){
 async function routText(fill){
     if (psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
         winPrevSize = psychoJS.window.size.map((s)=>s);
-        let ratio = [1,1];//;[winPrevSize[0]/defaultSize[0],winPrevSize[1]/defaultSize[1]];
+        let ratio = [1,1];
         instrText.height = ratio[1]*0.05;
     }
 
@@ -1276,7 +1275,7 @@ async function routText(fill){
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
             if (ready.keys == "escape"){return quitPsychoJS()}
-            else{//if(ready.keys == "k"){
+            else{
                 notReady = false;
                 instrText.autoDraw = false;
                 return Scheduler.Event.NEXT;
