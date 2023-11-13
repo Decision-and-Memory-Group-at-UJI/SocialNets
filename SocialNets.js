@@ -452,6 +452,9 @@ function routB(time,trialtime){
             tlocimages.splice(selectperson,1);
             tsocgroups.splice(selectperson,1);
             tsocimages.splice(selectperson,1);
+            sits.splice(selectperson,1);
+            socs.splice(selectperson,1);
+            locs.splice(selectperson,1);
             selectperson = getRandInt(0,tpeople.length-1)
         };
    
@@ -1016,7 +1019,7 @@ async function routCConfbeg(){
     notReady = true;
     timeCF = clock.getTime();
     textConf = new visual.TextStim({win:psychoJS.window, name:'endText',
-                text:'How confident are you? Click the slider, and drag the red circle to your confidence level. Then, press spacebar to continue',
+                text:'How confident are you? Click the slider, and drag the red circle to your confidence level. Then press spacebar to continue',
                 font:'Arial',
                 units:'height', pos:[0, 0.35], height:0.05, wrapWidth:null, ori:0,
                 color:'white', colorSpace:'rgb', opacity:1,
@@ -1211,7 +1214,8 @@ function routD(trials){
                 Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
             };
         };
-        for (let k = 0; k < Stimuls.length; k++){Stimuls[k].size = [.33, .33]};
+        for (let k = 1; k < Stimuls.length; k++){Stimuls[k].size = [.45, .45]};
+        Stimuls[0].size = [.4,.4];
         Stimuls[0].pos = Bim_positions[0];
         if (leftorRight == -1){
             Stimuls[1].pos = Bim_positions[3];
@@ -1239,9 +1243,9 @@ function routD(trials){
                 Stimuls[2].pos = [Bim_positions[3][0]*ratio[0],Bim_positions[3][1]*ratio[1]];
                 Stimuls[1].pos = [Bim_positions[1][0]*ratio[0],Bim_positions[1][1]*ratio[1]];
             };
-            Stimuls[0].size = [0.33*ratio[0],0.33*ratio[1]]
-            Stimuls[1].size = [0.33*ratio[0],0.33*ratio[1]]
-            Stimuls[2].size = [0.33*ratio[0],0.33*ratio[1]]
+            Stimuls[0].size = [0.40*ratio[0],0.40*ratio[1]]
+            Stimuls[1].size = [0.45*ratio[0],0.45*ratio[1]]
+            Stimuls[2].size = [0.45*ratio[0],0.45*ratio[1]]
         }
 
         // Kick user out of experiment if they take too long to reply
