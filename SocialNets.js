@@ -221,8 +221,8 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(routA,1,1);
     flowScheduler.add(routAEnd)
     flowScheduler.add(routBbeg,1,j);
-    flowScheduler.add(routB,1,5);
-    flowScheduler.add(routBIters,2,5);
+    flowScheduler.add(routB,1,8);
+    flowScheduler.add(routBIters,2,8);
     flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first, second, and third best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. Also, note that no individual can be ranked first, second, or third in multiple roles")
     flowScheduler.add(routText);
     flowScheduler.add(routCbeg,j);
@@ -1139,26 +1139,10 @@ async function routDbeg(trials){
 
 
     for(let i = 0; i < P1eioch.length/2;  i++){
-        eind[P1eioch[i]] = 1;
-        eind[P1einoch[i]] = 1;
-        eind[P2eioch[i]] = 1;
-        eind[P2einoch[i]] = 1;
-        eind[P3eioch[i]] = 1;
-        eind[P3einoch[i]] = 1;
-        eind[P4eioch[i]] = 1;
-        eind[P4einoch[i]] = 1;
-        eind[P5eioch[i]] = 1;
-        eind[P5einoch[i]] = 1;
-        eind[P1eooch[i]] = 1;
-        eind[P1eonoch[i]] = 1;
-        eind[P2eooch[i]] = 1;
-        eind[P2eonoch[i]] = 1;
-        eind[P3eooch[i]] = 1;
-        eind[P3eonoch[i]] = 1;
-        eind[P4eooch[i]] = 1;
-        eind[P4eonoch[i]] = 1;
-        eind[P5eooch[i]] = 1;
-        eind[P5eonoch[i]] = 1;
+        eind[P1eioch[i]] = 1;eind[P1einoch[i]] = 1;eind[P2eioch[i]] = 1;eind[P2einoch[i]] = 1;eind[P3eioch[i]] = 1;
+        eind[P3einoch[i]] = 1;eind[P4eioch[i]] = 1;eind[P4einoch[i]] = 1;eind[P5eioch[i]] = 1;eind[P5einoch[i]] = 1;
+        eind[P1eooch[i]] = 1;eind[P1eonoch[i]] = 1;eind[P2eooch[i]] = 1;eind[P2eonoch[i]] = 1;eind[P3eooch[i]] = 1;
+        eind[P3eonoch[i]] = 1;eind[P4eooch[i]] = 1;eind[P4eonoch[i]] = 1;eind[P5eooch[i]] = 1;eind[P5eonoch[i]] = 1;
     }
 
     for(let i = 1; i < pind.length - 1; i++){
@@ -1175,6 +1159,8 @@ async function routDbeg(trials){
             }
         }
     }
+    console.log(bwgroup.reduce((psum,a)=>psum+a,0))
+    console.log(otherchoice.reduce((psum,a)=>psum+a,0))
 
     choices = [];
     confidences = [];
@@ -1280,14 +1266,14 @@ function routD(trials){
 
         for (let k = 1; k < Stimuls.length; k++){Stimuls[k].size = [.45, .45]};
         Stimuls[0].size = [.4,.4];
-        Stimuls[0].pos = Bim_positions[0];
+        Stimuls[0].pos = [Bim_positions[0][0],Bim_positions[0][1]-0.05];
         if (leftorRight == -1){
-            Stimuls[1].pos = Bim_positions[3];
-            Stimuls[2].pos = Bim_positions[1];
+            Stimuls[1].pos = [Bim_positions[3][0],Bim_positions[3][1]-0.05];
+            Stimuls[2].pos = [Bim_positions[1][0],Bim_positions[1][1]-0.05];
         }
         else{
-            Stimuls[1].pos = Bim_positions[1];
-            Stimuls[2].pos = Bim_positions[3];
+            Stimuls[1].pos = [Bim_positions[1][0],Bim_positions[1][1]-0.05];
+            Stimuls[2].pos = [Bim_positions[3][0],Bim_positions[3][1]-0.05];
         };
         Stimuls[0].autoDraw = true;
         Stimuls[1].autoDraw = true;
@@ -1299,13 +1285,13 @@ function routD(trials){
         if (psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
             winPrevSize = psychoJS.window.size.map((s)=>s);
             let ratio = [1,1];//;[winPrevSize[0]/defaultSize[0],winPrevSize[1]/defaultSize[1]];
-            Stimuls[0].pos = [Bim_positions[0][0]*ratio[0],Bim_positions[0][1]*ratio[1]];
+            Stimuls[0].pos =[Bim_positions[0][0]*ratio[0],Bim_positions[0][1]*ratio[1]-0.05];
             if (correct[correct.length-1] == -1){
-                Stimuls[1].pos = [Bim_positions[3][0]*ratio[0],Bim_positions[3][1]*ratio[1]];
-                Stimuls[2].pos = [Bim_positions[1][0]*ratio[0],Bim_positions[1][1]*ratio[1]];
+                Stimuls[1].pos =[Bim_positions[3][0]*ratio[0],Bim_positions[3][1]*ratio[1]-0.05];
+                Stimuls[2].pos = [Bim_positions[1][0]*ratio[0],Bim_positions[1][1]*ratio[1]-0.05];
             }else{
-                Stimuls[2].pos = [Bim_positions[3][0]*ratio[0],Bim_positions[3][1]*ratio[1]];
-                Stimuls[1].pos = [Bim_positions[1][0]*ratio[0],Bim_positions[1][1]*ratio[1]];
+                Stimuls[2].pos = [Bim_positions[3][0]*ratio[0],Bim_positions[3][1]*ratio[1]-0.05];
+                Stimuls[1].pos = [Bim_positions[1][0]*ratio[0],Bim_positions[1][1]*ratio[1]-0.05];
             };
             Stimuls[0].size = [0.40*ratio[0],0.40*ratio[1]]
             Stimuls[1].size = [0.45*ratio[0],0.45*ratio[1]]
