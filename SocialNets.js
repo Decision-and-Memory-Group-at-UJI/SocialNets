@@ -210,7 +210,7 @@ var tasksAll = [["DJ", "Desserts", "Barbecue", "Decorations", "Clean Up"],
             ["Experimenter", "Presentation Maker", "Report Writer", "Data Analyst", "Participant Recruiter"],
             ["Contractor", "Architect", "Interior Decorations", "Landscaper", "Realtor"]];
 
-var parties = 4;
+var parties = 2;
 for (let j = 1; j < parties+1; j++){
     flowScheduler.add(setText,"You'll view sets of 3 images comprising locations, groups and activities corresponding to an individual. When viewing the 3 images, please imagine the listed person performing the given activity in the displayed location with the presented group of people. Please try to remember these events that you imagine since they'll be needed to accurately assign the presented individual to specific roles in a " + TASKNAME[j-1] + ".");
     flowScheduler.add(routText);
