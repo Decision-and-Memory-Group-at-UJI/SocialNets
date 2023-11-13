@@ -218,8 +218,8 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(routA,1,1);
     flowScheduler.add(routAEnd)
     flowScheduler.add(routBbeg,1,j);
-    flowScheduler.add(routB,1,10);
-    flowScheduler.add(routBIters,1,10);
+    flowScheduler.add(routB,1,5);
+    flowScheduler.add(routBIters,1,5);
     flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first, second, and third best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. Also, note that no individual can be ranked first, second, or third in multiple roles")
     flowScheduler.add(routText);
     flowScheduler.add(routCbeg,j);
@@ -780,7 +780,7 @@ async function routCbeg(nParty){
     rankStims = [];
     for (let j = 0; j < 3; j++){
         let pos = [tStim[people.length-1].pos[0] + 0.25+0.25*j,0.4];
-        rankStims.push(new visual.TextStim({win:psychoJS.window,text:j,pos:pos,
+        rankStims.push(new visual.TextStim({win:psychoJS.window,text:j+1,pos:pos,
                     height:0.05, wrapWidth:null, ori:0, color:'white',
                     colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'}));
         rankStims[j].autoDraw = true;
