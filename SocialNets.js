@@ -1055,29 +1055,107 @@ var doingConf,selectedLR,leftorRight;
 var choice;
 var Stimuls, confRats;
 var situationIm,socgroupsIm,locationIm;
+var Schooses,Lchooses;
 
 async function routDbeg(trials){
 
-    pind = shuffler([...Array(4*trials).keys()].map((i)=>getRandInt(0,5)));
+    let toFill = shuffler([...Array(4*trials).keys()]);
+    pind = [...Array(4*trials).keys()].map((i) => 0);
+    let P = 0;
+    for(let i = 0; i < 4*trials; i++){
+        if (i > 0 && i % (4*trials/5) == 0){
+            P += 1;
+        }
+        pind[toFill[i]] = P;
+    }
+
     // Episode Select
-    eind = shuffler([...Array(4*trials).keys()].map((i)=>getRandInt(0,2)));
+    eind = shuffler([...Array(4*trials).keys()].map((i)=>0));
+    let filtArr = [...Array(4*trials).keys()];
     // Reference cue
     otherchoice = [...Array(4*trials).keys()].map((i)=>0);
-    let toFill = shuffler([...Array(4*trials).keys()]);
-    for(let i = 0; i < 2*trials; i++){
-        otherchoice[toFill[i]] = 1;
-    }
-
-    // Between or within person corruption
     bwgroup = [...Array(4*trials).keys()].map((i)=>0);
-    let indRefs = shuffler([...Array(4*trials).keys()].filter((i) => otherchoice[i]));
+    let P1ch = shuffler(filtArr.filter((p) => pind[p] == 0));
+    let P2ch = shuffler(filtArr.filter((p) => pind[p] == 1));
+    let P3ch = shuffler(filtArr.filter((p) => pind[p] == 2));
+    let P4ch = shuffler(filtArr.filter((p) => pind[p] == 3));
+    let P5ch = shuffler(filtArr.filter((p) => pind[p] == 4));
 
-    for(let i = 0; i < trials;  i++){
-        bwgroup[indRefs[i]] = 1;
+    for(let i = 0; i < P1ch.length/2; i++){
+        otherchoice[P1ch[i]] = 1;
+        otherchoice[P2ch[i]] = 1;
+        otherchoice[P3ch[i]] = 1;
+        otherchoice[P4ch[i]] = 1;
+        otherchoice[P5ch[i]] = 1;
     }
-    let indORefs = shuffler([...Array(4*trials).keys()].filter((i) => !otherchoice[i]));
-    for(let i = 0; i < trials;  i++){
-        bwgroup[indORefs[i]] = 1;
+    let P1och =  P1ch.filter((i) => otherchoice[i] == 1);
+    let P1noch = P1ch.filter((i) => otherchoice[i] == 0);
+    let P2och =  P2ch.filter((i) => otherchoice[i] == 1);
+    let P2noch = P2ch.filter((i) => otherchoice[i] == 0);
+    let P3och = P3ch.filter((i) => otherchoice[i] == 1);
+    let P3noch = P3ch.filter((i) => otherchoice[i] == 0);
+    let P4och = P4ch.filter((i) => otherchoice[i] == 1);
+    let P4noch = P4ch.filter((i) => otherchoice[i] == 0);
+    let P5och = P5ch.filter((i) => otherchoice[i] == 1);
+    let P5noch = P5ch.filter((i) => otherchoice[i] == 0);
+
+    for(let i = 0; i < P1och.length/2;  i++){
+        bwgroup[P1och[i]] = 1;
+        bwgroup[P1noch[i]] = 1;
+        bwgroup[P2och[i]] = 1;
+        bwgroup[P2noch[i]] = 1;
+        bwgroup[P3och[i]] = 1;
+        bwgroup[P3noch[i]] = 1;
+        bwgroup[P4och[i]] = 1;
+        bwgroup[P4noch[i]] = 1;
+        bwgroup[P5och[i]] = 1;
+        bwgroup[P5noch[i]] = 1;
+    }
+
+    let P1eioch = P1och.filter((i) => bwgroup[i] == 1);
+    let P1einoch = P1noch.filter((i) => bwgroup[i] == 1);
+    let P2eioch = P2och.filter((i) => bwgroup[i] == 1);
+    let P2einoch = P2noch.filter((i) => bwgroup[i] == 1);
+    let P3eioch = P3och.filter((i) => bwgroup[i] == 1);
+    let P3einoch = P3noch.filter((i) => bwgroup[i] == 1);
+    let P4eioch = P4och.filter((i) => bwgroup[i] == 1);
+    let P4einoch = P4noch.filter((i) => bwgroup[i] == 1);
+    let P5eioch = P5och.filter((i) => bwgroup[i] == 1);
+    let P5einoch = P5noch.filter((i) => bwgroup[i] == 1);
+
+    let P1eooch = P1och.filter((i) => bwgroup[i]  == 0);
+    let P1eonoch = P1noch.filter((i) => bwgroup[i]  == 0);
+    let P2eooch = P2och.filter((i) => bwgroup[i]  == 0);
+    let P2eonoch = P2noch.filter((i) => bwgroup[i]  == 0);
+    let P3eooch = P3och.filter((i) => bwgroup[i]  == 0);
+    let P3eonoch = P3noch.filter((i) => bwgroup[i]  == 0);
+    let P4eooch = P4och.filter((i) => bwgroup[i]  == 0);
+    let P4eonoch = P4noch.filter((i) => bwgroup[i]  == 0);
+    let P5eooch = P5och.filter((i) => bwgroup[i]  == 0);
+    let P5eonoch = P5noch.filter((i) => bwgroup[i]  == 0);
+
+
+    for(let i = 0; i < P1eioch.length/2;  i++){
+        eind[P1eioch[i]] = 1;
+        eind[P1einoch[i]] = 1;
+        eind[P2eioch[i]] = 1;
+        eind[P2einoch[i]] = 1;
+        eind[P3eioch[i]] = 1;
+        eind[P3einoch[i]] = 1;
+        eind[P4eioch[i]] = 1;
+        eind[P4einoch[i]] = 1;
+        eind[P5eioch[i]] = 1;
+        eind[P5einoch[i]] = 1;
+        eind[P1eooch[i]] = 1;
+        eind[P1eonoch[i]] = 1;
+        eind[P2eooch[i]] = 1;
+        eind[P2eonoch[i]] = 1;
+        eind[P3eooch[i]] = 1;
+        eind[P3eonoch[i]] = 1;
+        eind[P4eooch[i]] = 1;
+        eind[P4eonoch[i]] = 1;
+        eind[P5eooch[i]] = 1;
+        eind[P5eonoch[i]] = 1;
     }
 
     for(let i = 1; i < pind.length - 1; i++){
@@ -1110,6 +1188,10 @@ async function routDbeg(trials){
     psychoJS.experiment.addData("Query", otherchoice);
     psychoJS.experiment.addData("BWgroup", bwgroup);
     confRats = 0
+    Schooses = [[],[],[],[],[]];
+    Lchooses = [[],[],[],[],[]];
+    for(let p = 0; p < 5; p++){for (let i=0; i < groupays.length; i++){for (let j = 0; j < 2; j++){if (i != p){Schooses[p].push(groupays[i][j])}}};Schooses[p]=shuffler(Schooses[p])}
+    for(let p = 0; p < 5; p++){for (let i=0; i < locays.length; i++){for (let j = 0; j < 2; j++){if (i != p){Lchooses[p].push(locays[i][j])}}};Lchooses[p]=shuffler(Lchooses[p])}
     return Scheduler.Event.NEXT;
 }
 
@@ -1178,8 +1260,7 @@ function routD(trials){
          Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
          if (oc == 0){
              if (bw == 1){
-                 for (let i=0; i < groupays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(groupays[i][j])}}}
-                 choose = chooses[getRandInt(0,chooses.length)];
+                 choose = Schooses[p][t];
              }
              else{choose = groupays[p][e^1]};
              Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:groupays[p][e]}));
@@ -1187,8 +1268,7 @@ function routD(trials){
          }
          else if (oc == 1){
              if (bw == 1){
-                 for (let i=0; i < locays.length; i++){for (let j = 0; j < 2; j++){if (i != p){chooses.push(locays[i][j])}}}
-                 choose = chooses[getRandInt(0,chooses.length)];
+                 choose = Lchooses[p][t];
              }
              else{choose = locays[p][e^1]};
              Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:locays[p][e]}));
