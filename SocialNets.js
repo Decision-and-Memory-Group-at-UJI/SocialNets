@@ -219,7 +219,7 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(routAEnd)
     flowScheduler.add(routBbeg,1,j);
     flowScheduler.add(routB,1,5);
-    flowScheduler.add(routBIters,1,5);
+    flowScheduler.add(routBIters,2,5);
     flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first, second, and third best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. Also, note that no individual can be ranked first, second, or third in multiple roles")
     flowScheduler.add(routText);
     flowScheduler.add(routCbeg,j);
@@ -333,7 +333,6 @@ function routA(time, trials){
 };
 
 var people,seen,situation,sitimages,localation,locimages,socgroups,socimages;
-var tpeople,seen,tsituation,tsitimages,tlocalation,tlocimages,tsocgroups,tsocimages;
 var party;
 var lStim;
 let labels = ["Situation", "Group", "Location"];
@@ -343,7 +342,7 @@ var locs,socs,sits,trials;
 var trialT;
 var selected,postselect,iters,indices;
 var groupays,locays,sitays;
-var winPrevSize;
+var winPrevSize,choosePeople;
 async function routBbeg(time,nParty){
     let party = "party" + nParty;
     winPrevSize = psychoJS.window.size.map((s)=>s);
@@ -376,19 +375,6 @@ async function routBbeg(time,nParty){
     socgroups = shuffler(socgroups);
     socimages = socgroups.map((s)=>[...Array(2).keys()].map((ss)=> (ss+1)+".jpg"));
 
-    tpeople = [...Array(5).keys()].map((k)=>party+"/people/"+(k+1)+".png");
-    tsituation = [...Array(5).keys()].map((s)=>party+"/socialSit/"+(s+1));
-    tsituation = shuffler(tsituation);
-    tsitimages = tsituation.map((s)=>[...Array(2).keys()].map((ss)=> (ss+1)+".png"));
-
-    tlocalation = [...Array(5).keys()].map((s)=>party+"/locations/"+(s+1));
-    tlocalation = shuffler(tlocalation);
-    tlocimages = tlocalation.map((s)=>[...Array(2).keys()].map((ss)=> (ss+1)+".jpg"));
-
-    tsocgroups = [...Array(5).keys()].map((s)=>party+"/socgroups/"+(s+1));
-    tsocgroups = shuffler(tsocgroups);
-    tsocimages = tsocgroups.map((s)=>[...Array(2).keys()].map((ss)=> (ss+1)+".jpg"));
-
     lStim = [];
     trials = people.length;
     locs = [...Array(socgroups.length).keys()].map((k)=>true);
@@ -417,6 +403,7 @@ async function routBbeg(time,nParty){
     tFixation = clock.getTime();
     selected = false;
     postselect = true;
+    choosePeople = [...Array(5).keys()].map((i)=>i);
     return Scheduler.Event.NEXT;
 }
 var person,Person,indsit,indloc,indsoc,socim,locim,sgroupim,SocialSit,SocialGroup,Location;
@@ -440,26 +427,15 @@ function routB(time,trialtime){
 
     if (!selected){
         selected = true;
+        let tchoose = getRandInt(0,choosePeople.length-1)
+        let selectperson = choosePeople[tchoose]
 
-        let selectperson = getRandInt(0,tpeople.length-1)
-
-        while (seen[selectperson] >= 2){
-            tpeople.splice(selectperson,1);
-            seen.splice(selectperson,1);
-            tsituation.splice(selectperson,1);
-            tsitimages.splice(selectperson,1);
-            tlocalation.splice(selectperson,1);
-            tlocimages.splice(selectperson,1);
-            tsocgroups.splice(selectperson,1);
-            tsocimages.splice(selectperson,1);
-            sits.splice(selectperson,1);
-            socs.splice(selectperson,1);
-            locs.splice(selectperson,1);
-            selectperson = getRandInt(0,tpeople.length-1)
-        };
-   
         seen[selectperson] += 1;
-        person = tpeople[selectperson];
+        if (seen[selectperson] >= 2){
+            choosePeople.splice(tchoose,1);
+        }
+
+        person = people[selectperson];
         indsit, indloc, indsoc;
         if (sits[selectperson]){
             indsit = getRandInt(0,2);
@@ -479,9 +455,9 @@ function routB(time,trialtime){
         }
         else{indsoc = indsoc ^ 1};
     
-        socim = tsituation[selectperson]+"/"+tsitimages[selectperson][indsit];
-        locim = tlocalation[selectperson]+"/"+tlocimages[selectperson][indloc];
-        sgroupim = tsocgroups[selectperson]+"/"+tsocimages[selectperson][indsoc];
+        socim = situation[selectperson]+"/"+sitimages[selectperson][indsit];
+        locim = localation[selectperson]+"/"+locimages[selectperson][indloc];
+        sgroupim = socgroups[selectperson]+"/"+socimages[selectperson][indsoc];
  
         if (t >= 5){indices = shuffler(indices)};
 
@@ -694,7 +670,7 @@ function routBIters(iterations,trialtime){
         SocialGroup.autoDraw = false
         Location.autoDraw = false
         postselect = true;
-        if (trialT > trials*iterations){
+        if (trialT > 2*trials*iterations){
             trialT = 0;
             return Scheduler.Event.NEXT;
         }else{
