@@ -221,8 +221,7 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(routA,1,1);
     flowScheduler.add(routAEnd)
     flowScheduler.add(routBbeg,1,j);
-    flowScheduler.add(routB,1,8);
-    flowScheduler.add(routBIters,2,8);
+    flowScheduler.add(routB,2,8);
     flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first, second, and third best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. Also, note that no individual can be ranked first, second, or third in multiple roles")
     flowScheduler.add(routText);
     flowScheduler.add(routCbeg,j);
@@ -368,15 +367,15 @@ async function routBbeg(time,nParty){
     seen = [...Array(people.length).keys()].map((k) => 0);
     situation = [...Array(5).keys()].map((s)=>party+"/socialSit/"+(s+1));
     situation = shuffler(situation);
-    sitimages = situation.map((s)=>[...Array(2).keys()].map((ss)=> (ss+1)+".png"));
+    sitimages = situation.map((s)=>shuffler([...Array(2).keys()]).map((ss)=> (ss+1)+".png"));
 
     localation = [...Array(5).keys()].map((s)=>party+"/locations/"+(s+1));
     localation = shuffler(localation);
-    locimages = localation.map((s)=>[...Array(2).keys()].map((ss)=> (ss+1)+".jpg"));
+    locimages = localation.map((s)=>shuffler([...Array(2).keys()]).map((ss)=> (ss+1)+".jpg"));
 
     socgroups = [...Array(5).keys()].map((s)=>party+"/socgroups/"+(s+1));
     socgroups = shuffler(socgroups);
-    socimages = socgroups.map((s)=>[...Array(2).keys()].map((ss)=> (ss+1)+".jpg"));
+    socimages = socgroups.map((s)=>shuffler([...Array(2).keys()]).map((ss)=> (ss+1)+".jpg"));
 
     lStim = [];
     trials = people.length;
@@ -395,6 +394,7 @@ async function routBbeg(time,nParty){
             locays[i].push(localation[i]+"/"+locimages[i][j]);
             sitays[i].push(situation[i]+"/"+sitimages[i][j]);
             groupays[i].push(socgroups[i]+"/"+socimages[i][j]);
+            lStim.push([people[i], sitays[i][j],groupays[i][j],locays[i][j]]);
         };
     };
     let stimlist = [persons,sitays,groupays,locays];
@@ -410,166 +410,8 @@ async function routBbeg(time,nParty){
     return Scheduler.Event.NEXT;
 }
 var person,Person,indsit,indloc,indsoc,socim,locim,sgroupim,SocialSit,SocialGroup,Location;
-function routB(time,trialtime){
 
-    let t = trialT
-    if(postselect){
-        fixation.autoDraw = true;
-        let ret = routA(time,1);
-        if (ret === Scheduler.Event.FLIP_REPEAT){
-            return ret;
-        }else{
-            fixation.autoDraw = false;
-            postselect = false;
-            selected = false;
-            if (t <= 5){for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = true}}
-            frames += 1;
-            return Scheduler.Event.FLIP_REPEAT;
-        }
-    }
-
-    if (!selected){
-        selected = true;
-        let tchoose = getRandInt(0,choosePeople.length-1)
-        let selectperson = choosePeople[tchoose]
-
-        seen[selectperson] += 1;
-        if (seen[selectperson] >= 2){
-            choosePeople.splice(tchoose,1);
-        }
-
-        person = people[selectperson];
-        indsit, indloc, indsoc;
-        if (sits[selectperson]){
-            indsit = getRandInt(0,2);
-            sits[selectperson]=false;
-        }
-        else{indsit = indsit ^ 1};
-    
-        if (locs[selectperson]){
-            indloc = getRandInt(0,2);
-            locs[selectperson]=false;
-        }
-        else{indloc = indloc ^ 1};
-    
-        if (socs[selectperson]){
-            indsoc = getRandInt(0,2);
-            socs[selectperson]= false;
-        }
-        else{indsoc = indsoc ^ 1};
-    
-        socim = situation[selectperson]+"/"+sitimages[selectperson][indsit];
-        locim = localation[selectperson]+"/"+locimages[selectperson][indloc];
-        sgroupim = socgroups[selectperson]+"/"+socimages[selectperson][indsoc];
- 
-        if (t >= 5){indices = shuffler(indices)};
-
-        let Psize;
-        let Ssize;
-        let Bcopy,BLcopy;
-        winPrevSize = psychoJS.window.size;
-        Bcopy = JSON.parse(JSON.stringify(Bim_positions));
-        BLcopy = JSON.parse(JSON.stringify(BLim_positions));
-        let offset = [0,-0.2]
-        let height = 0.05
-        let ratio = [1,1];//;[psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
-        for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
-        for(let k=1; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){TextStims[k-1].pos[kk] = (BLcopy[k][kk])*ratio[kk]}};
-        for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].height = height*ratio[1]};
-        Psize = [0.36*ratio[0],0.36*ratio[1]];
-        Ssize = [0.475*ratio[0],0.475*ratio[1]];
-
-        Person = new visual.ImageStim({win:psychoJS.window,image:person,size:Psize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[0],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
-});
-        SocialSit = new visual.ImageStim({win:psychoJS.window,image:socim,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[0]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
-});
-        SocialGroup = new visual.ImageStim({win:psychoJS.window,image:sgroupim,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[1]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
-});
-        Location = new visual.ImageStim({win:psychoJS.window,image:locim,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[2]], color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 
-});
-
-        SocialSit.autoDraw = true;
-        Person.autoDraw = true;
-        SocialGroup.autoDraw = true;
-        Location.autoDraw = true;
-
-        lStim.push([person, socim,sgroupim,locim]);
-        tBegin = clock.getTime();
-        if (t == 5){for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false}};
-
-    }
-
-    if(clock.getTime() - tBegin < trialtime){
-        if(psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
-            let Psize;
-            let Ssize;
-            let Bcopy;
-            winPrevSize = psychoJS.window.size;
-            Bcopy = JSON.parse(JSON.stringify(Bim_positions));
-            BLcopy = JSON.parse(JSON.stringify(BLim_positions));
-            let offset = [0,-0.2]
-            let height = 0.05
-            let ratio = [1,1];//;[psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
-            for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = [k][kk]*ratio[kk]}};
-            for(let k=1; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){BLcopy[kk] = (BLcopy[k][kk])*ratio[kk]}};
-            Psize = [0.36*ratio[0],0.36*ratio[1]];
-            Ssize = [0.475*ratio[0],0.475*ratio[1]];
-            Person.size = Psize;
-            SocialSit.size = Ssize;
-            Location.size = Ssize;
-            SocialGroup.size = Ssize;
-            SocialSit.pos = Bcopy[indices[1]];
-            SocialGroup.pos = Bcopy[indices[1]];
-            Location.pos = Bcopy[indices[2]];
-            for(let k=1; k< Object.keys(Bcopy).length;k++){
-                TextStims[k-1].pos = [BLcopy[k][0]*ratio[0],BLcopy[k][1]*ratio[1]];
-            };
-            for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].height = height*ratio[1]};
-        }
-
-        Person.opacity /= 1.01;
-
-        let keys = ready.getKeys({keyList:[], waitRelease:false});
-        _ready_allKeys = [].concat(keys);
-        if (_ready_allKeys.length > 0) {
-            ready.keys = _ready_allKeys[_ready_allKeys.length - 1].name;  // just the last key pressed
-            ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
-            ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
-            if (ready.keys == "escape"){return quitPsychoJS()}
-            if(ready.keys == "k"){
-                selected = false;
-                SocialSit.autoDraw = false
-                Person.autoDraw = false
-                SocialGroup.autoDraw = false
-                Location.autoDraw = false
-                postselect = true;
-                for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false};
-
-                return Scheduler.Event.NEXT}
-        }
-        frames += 1;
-        return Scheduler.Event.FLIP_REPEAT;
-    }else{
-        trialT += 1
-        tFixation = clock.getTime();
-        selected = false;
-        SocialSit.autoDraw = false
-        Person.autoDraw = false
-        SocialGroup.autoDraw = false
-        Location.autoDraw = false
-        postselect = true;
-        for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = false}
-        if (trialT >= trials*2){
-            trialT = 0;
-            return Scheduler.Event.NEXT;
-        }else{
-            frames += 1;
-            return Scheduler.Event.FLIP_REPEAT
-        };
-    };
-}
-
-function routBIters(iterations,trialtime){
+function routB(iterations,trialtime){
     let lind = trialT
     if (lind % lStim.length == 0){
         lStim = shuffler(lStim);
@@ -584,6 +426,7 @@ function routBIters(iterations,trialtime){
             postselect = false;
             tBegin = clock.getTime();
             frames += 1;
+            if (lind <= 5){for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = true}}
             return Scheduler.Event.FLIP_REPEAT;
         }
     }
@@ -592,7 +435,8 @@ function routBIters(iterations,trialtime){
         tBegin = clock.getTime();
         let t = lind % lStim.length;
         [person,socim,sgroupim,locim] = lStim[t];
-        indices = shuffler(indices);
+        if (lind >= 5)
+            indices = shuffler(indices);
         let Psize;
         let Ssize;
         let Bcopy;
@@ -619,6 +463,7 @@ function routBIters(iterations,trialtime){
         SocialGroup.autoDraw = true;
         Location.autoDraw = true;
         frames += 1;
+        if (lind == 5){for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false}};
         return Scheduler.Event.FLIP_REPEAT;
     }
 
@@ -671,6 +516,7 @@ function routBIters(iterations,trialtime){
         SocialGroup.autoDraw = false
         Location.autoDraw = false
         postselect = true;
+        for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = false}
         if (trialT > 2*trials*iterations){
             trialT = 0;
             return Scheduler.Event.NEXT;
