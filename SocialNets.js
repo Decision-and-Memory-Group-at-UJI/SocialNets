@@ -629,7 +629,6 @@ function routBIters(iterations,trialtime){
             let offset = [0,-0.2]
             let height = 0.05
             let ratio = [psychoJS.window.size[0]/defaultSize[0],psychoJS.window.size[1]/defaultSize[1]]
-            ratio = [1,1];
             for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
             Psize = [0.36*ratio[0],0.36*ratio[1]];
             Ssize = [0.475*ratio[0],0.475*ratio[1]];
