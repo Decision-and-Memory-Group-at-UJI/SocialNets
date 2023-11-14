@@ -1020,6 +1020,8 @@ async function routDbeg(trials){
     Stimuls = [];
     psychoJS.experiment.addData("Query", otherchoice);
     psychoJS.experiment.addData("BWgroup", bwgroup);
+    psychoJS.experiment.addData("Eind",eind);
+    psychoJS.experiment.addData("Pind",pind);
     confRats = 0
     Schooses = [[],[],[],[],[]];
     Lchooses = [[],[],[],[],[]];
