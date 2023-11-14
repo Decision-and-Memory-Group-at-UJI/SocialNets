@@ -1191,7 +1191,7 @@ function routD(trials){
                 Stimuls[1].autoDraw = false;
                 Stimuls[2].autoDraw = false;
                 Stimuls = [];
-                if (confRats >= 5){
+                if (confRats >= 10){
                     slider.autoDraw = false;
                     textConf.autoDraw = false;
                     doingConf = false;
