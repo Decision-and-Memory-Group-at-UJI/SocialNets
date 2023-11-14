@@ -1089,24 +1089,23 @@ function routD(trials){
         let c = 0;
         let chooses = [];
         let choose;
-
-         Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
-         if (oc == 0){
-             if (bw == 1){
-                 choose = Schooses[p][t];
-             }
-             else{choose = groupays[p][e^1]};
-             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:groupays[p][e]}));
-             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
-         }
-         else if (oc == 1){
-             if (bw == 1){
-                 choose = Lchooses[p][t];
-             }
-             else{choose = locays[p][e^1]};
-             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:locays[p][e]}));
-             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
-         };
+        Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
+        if (oc == 0){
+            if (bw == 1){
+                choose = Schooses[p][getRandInt(0,Schooses[p].length-1)];
+            }
+            else{choose = groupays[p][e^1]};
+            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:groupays[p][e]}));
+            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
+        }
+        else if (oc == 1){
+            if (bw == 1){
+                choose = Lchooses[p][getRandInt(0,Lchooses[p].length-1)];
+            }
+            else{choose = locays[p][e^1]};
+            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:locays[p][e]}));
+            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
+        };
 
         for (let k = 1; k < Stimuls.length; k++){Stimuls[k].size = [.45, .45]};
         Stimuls[0].size = [.4,.4];
