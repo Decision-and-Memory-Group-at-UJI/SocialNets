@@ -846,14 +846,7 @@ function routC(){
         for (let i = 0; i < 2; i++){
             rankStims[i].autoDraw = false;
         }
-        for (let key = 0; key < lineKeys.length; key++){
-            let item = lineKeys[key];
-            allKeys = item.keys();
-            sortedKeys = allKeys.sort();
-            newdict = {};
-            for (let i = 0; i < sortedKeys; i++){newdict[i] = item[sortedKeys[i]]};
-            lineKeys[key] = newdict;
-        };
+
         psychoJS.experiment.addData("rankDec",JSON.stringify(lineKeys));
 
         questStim.autoDraw = false;
