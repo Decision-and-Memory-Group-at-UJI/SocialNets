@@ -1238,9 +1238,11 @@ function routDc(){
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
             if (ready.keys == 'space'){
-                let RT = clock.getTime() - timeCF;
-                notReady = false;
-                return [slider.getRating(),RT]
+                if (typeof slider.getRating() !== 'undefined'){
+                    let RT = clock.getTime() - timeCF;
+                    notReady = false;
+                    return [slider.getRating(),RT];
+                }
             };
         };
     };
