@@ -413,9 +413,6 @@ var person,Person,indsit,indloc,indsoc,socim,locim,sgroupim,SocialSit,SocialGrou
 
 function routB(iterations,trialtime){
     let lind = trialT
-    if (lind % lStim.length == 0){
-        lStim = shuffler(lStim);
-    }
     if(postselect){
         fixation.autoDraw = true;
         let ret = routA(1,1);
@@ -431,6 +428,10 @@ function routB(iterations,trialtime){
         }
     }
     if (!selected){
+        if (lind % lStim.length == 0){
+            lStim = shuffler(lStim);
+        }
+
         selected = true;
         tBegin = clock.getTime();
         let t = lind % lStim.length;
