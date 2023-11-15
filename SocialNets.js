@@ -51,6 +51,11 @@ psychoJS.start({
   expInfo: expInfo,
   resources: [
     // resources:
+    {'name': 'exampleStim/people/1.png', 'path': 'exampleStim/people/1.png'},
+    {'name': 'exampleStim/socgroups/1/1.jpg', 'path': 'exampleStim/socgroups/1/1.jpg'},
+    {'name': 'exampleStim/socialSit/1/1.jpg', 'path': 'exampleStim/socialSit/1/1.jpg'},
+    {'name': 'exampleStim/locations/1/1.jpg', 'path': 'exampleStim/locations/1/1.jpg'},
+
     {'name': 'party1/people/1.png', 'path': 'party1/people/1.png'},
     {'name': 'party1/people/2.png', 'path': 'party1/people/2.png'},
     {'name': 'party1/people/3.png', 'path': 'party1/people/3.png'},
@@ -158,12 +163,13 @@ psychoJS.start({
 //    {'name': 'party3/socgroups/3/2.jpg', 'path': 'party3/socgroups/3/2.jpg'},
 //    {'name': 'party3/socgroups/4/2.jpg', 'path': 'party3/socgroups/4/2.jpg'},
 //    {'name': 'party3/socgroups/5/2.jpg', 'path': 'party3/socgroups/5/2.jpg'},
-//
-//    {'name': 'party4/people/1.png', 'path': 'party4/people/1.png'},
-//    {'name': 'party4/people/2.png', 'path': 'party4/people/2.png'},
-//    {'name': 'party4/people/3.png', 'path': 'party4/people/3.png'},
-//    {'name': 'party4/people/4.png', 'path': 'party4/people/4.png'},
-//    {'name': 'party4/people/5.png', 'path': 'party4/people/5.png'},
+
+    {'name': 'party4/people/1.png', 'path': 'party4/people/1.png'},
+    {'name': 'party4/people/2.png', 'path': 'party4/people/2.png'},
+    {'name': 'party4/people/3.png', 'path': 'party4/people/3.png'},
+    {'name': 'party4/people/4.png', 'path': 'party4/people/4.png'},
+    {'name': 'party4/people/5.png', 'path': 'party4/people/5.png'},
+
 //    {'name': 'party4/socialSit/1/1.png', 'path': 'party4/socialSit/1/1.png'},
 //    {'name': 'party4/socialSit/2/1.png', 'path': 'party4/socialSit/2/1.png'},
 //    {'name': 'party4/socialSit/3/1.png', 'path': 'party4/socialSit/3/1.png'},
@@ -214,21 +220,32 @@ var tasksAll = [["DJ", "Desserts", "Barbecue", "Decorations", "Clean Up"],
             ["Contractor", "Architect", "Interior Decorations", "Landscaper", "Realtor"]];
 
 var parties = 2;
+flowScheduler.add(setText,"In this experiment, you will be presented 3 images comprising a location, group, and activity corresponding to an individual. Your job is to create a story given these paired images. This will be important for accurately assigning and ranking roles to an individual for a given task.");
+flowScheduler.add(routText);
+flowScheduler.add(setText, "We will give you one example set of images in a Home Construction scenario to help you understand the experiment.");
+flowScheduler.add(routText);
+flowScheduler.add(routBExbeg);
+flowScheduler.add(routBEx,8);
+flowScheduler.add(setText,"A man (Top image) is constructing a house (Situation image) on a beach resort (Location image) after attending a robotics club with some friends (Group image)","ExB");
+flowScheduler.add(routText,"ExB");
+flowScheduler.add(routCbeg,3,"Ex");
+flowScheduler.add(setText, "Given a Home Construction scenario, this man will be ranked first for the role of contractor, and second for the role of architect.")
+flowScheduler.add(routText,"ExC");
 for (let j = 1; j < parties+1; j++){
-    flowScheduler.add(setText,"You'll view sets of 3 images comprising locations, groups and activities corresponding to an individual. When viewing the 3 images, please imagine the listed person performing the given activity in the displayed location with the presented group of people. Please try to remember these events that you imagine since they'll be needed to accurately assign the presented individual to specific roles in a " + TASKNAME[j-1] + ".");
+    flowScheduler.add(setText,"You'll now view sets of 3 images comprising locations, groups and activities corresponding to an individual. When viewing the 3 images, please imagine the listed person performing the given activity in the displayed location with the presented group of people. Please try to remember these events that you imagine. You will later need to accurately assign specific roles to the individuals seen for a " + TASKNAME[j-1] + ".");
     flowScheduler.add(routText);
     flowScheduler.add(routAbeg)
     flowScheduler.add(routA,1,1);
     flowScheduler.add(routAEnd)
     flowScheduler.add(routBbeg,1,j);
     flowScheduler.add(routB,2,8);
-    flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first, second, and third best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. Also, note that no individual can be ranked first, second, or third in multiple roles")
+    flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first and second best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. You can always overwrite an assigned role by dragging a person from the right column to the ranking. Also, note that individuals can be ranked first or second only once.")
     flowScheduler.add(routText);
     flowScheduler.add(routCbeg,j);
     flowScheduler.add(routC);
     flowScheduler.add(routCConfbeg);
     flowScheduler.add(routCConf);
-    flowScheduler.add(setText,"You'll now view a series of reference images. You will need to choose which of the two images at the bottom left and right of the screen was previously paired with a reference image as quickly and accurately as possible by either pressing the left or right button on the keyboard.")
+    flowScheduler.add(setText,"You'll now view a series of reference images. You will need to choose which of the two images at the bottom left and right of the screen was previously paired with a reference image. Please answer as quickly and accurately as possible by either pressing the left or right arrow on the keyboard.")
     flowScheduler.add(routText);
     flowScheduler.add(routDbeg,10);
     flowScheduler.add(routD,40);
@@ -357,7 +374,7 @@ async function routBbeg(time,nParty){
     BLim_positions = {1: [0.6, -0.45],
                 2: [-0.0, -0.45],
                 3: [-0.6, -0.45]};
-
+	TextStims = []
     for (let i = 0; i < labels.length; i++){
         let t = labels[i];
         TextStims.push(new visual.TextStim({win: psychoJS.window,text:t,height:0.05,pos:BLim_positions[i+1],name:t,wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0}));
@@ -410,6 +427,176 @@ async function routBbeg(time,nParty){
     return Scheduler.Event.NEXT;
 }
 var person,Person,indsit,indloc,indsoc,socim,locim,sgroupim,SocialSit,SocialGroup,Location;
+var experson,exlocation,exgroup,exsituation;
+var BPerson,BGroup,BLoc,BSit;
+async function routBExbeg(){
+    winPrevSize = psychoJS.window.size.map((s)=>s);
+    Bim_positions = {0: [0, 0.3],
+                1: [0.6, -0.15],
+                2: [-0.0, -0.15],
+                3: [-0.6, -0.15]};
+
+
+    BLim_positions = {1: [0.6, -0.45],
+                2: [-0.0, -0.45],
+                3: [-0.6, -0.45]};
+
+	TextStims = []
+    for (let i = 0; i < labels.length; i++){
+        let t = labels[i];
+        TextStims.push(new visual.TextStim({win: psychoJS.window,text:t,height:0.05,pos:BLim_positions[i+1],name:t,wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0}));
+    };
+
+    experson = "exampleStim/people/1.png";
+    exsituation = "exampleStim/socialSit/1/1.jpg";
+    exlocation = "exampleStim/locations/1/1.jpg";
+	exgroup = "exampleStim/socgroups/1/1.jpg";
+
+    indices = [...Array(3).keys()].map((k)=>k+1);
+
+    trialT = 0
+    tFixation = clock.getTime();
+    selected = false;
+    postselect = true;
+    choosePeople = [...Array(5).keys()].map((i)=>i);
+    return Scheduler.Event.NEXT;
+}
+
+function routBEx(trialtime){
+    let lind = trialT
+    if(postselect){
+        fixation.autoDraw = true;
+        let ret = routA(1,1);
+        if (ret === Scheduler.Event.FLIP_REPEAT){
+            return ret;
+        }else{
+            fixation.autoDraw = false;
+            postselect = false;
+            tBegin = clock.getTime();
+            frames += 1;
+            if (lind <= 5){for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = true}}
+            return Scheduler.Event.FLIP_REPEAT;
+        }
+    }
+    if (!selected){
+
+        selected = true;
+        tBegin = clock.getTime();
+        let Psize;
+        let Ssize;
+        let Bcopy;
+        winPrevSize = psychoJS.window.size;
+        Bcopy = JSON.parse(JSON.stringify(Bim_positions));
+        let offset = [0,-0.2]
+        let height = 0.05
+        let ratio = [1,1];
+        for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
+        for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].height = height*ratio[1]};
+        Psize = [0.36*ratio[0],0.36*ratio[1]];
+        Ssize = [0.475*ratio[0],0.475*ratio[1]];
+        let BPsize = [2*0.36*ratio[0], 2*0.36*ratio[1]];
+        let BSsize = [2*0.475*ratio[0],2*0.475*ratio[1]];
+
+        Person = new visual.ImageStim({win:psychoJS.window,image:experson,size:Psize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[0],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 });
+        SocialSit = new visual.ImageStim({win:psychoJS.window,image:exsituation,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[0]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 });
+        SocialGroup = new visual.ImageStim({win:psychoJS.window,image:exgroup,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[1]],  color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 });
+        Location = new visual.ImageStim({win:psychoJS.window,image:exlocation,size:Ssize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[indices[2]], color : new util.Color([1, 1, 1]), opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 });
+
+        BPerson = new visual.Rect({win:psychoJS.window,size:BPsize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[0],  fillColor : new util.Color([0, 0, 0]), lineColor : new util.Color([1,0,0]) , lineWidth : 10, opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 });
+        BSit = new visual.Rect({win:psychoJS.window,size:BSsize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[1],  fillColor : new util.Color([0, 0, 0]), lineColor : new util.Color([0, 1, 0]) , lineWidth : 10, opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 });
+        BGroup = new visual.Rect({win:psychoJS.window,size:BSsize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[2],  fillColor : new util.Color([0, 0, 0]), lineColor : new util.Color([0, 0, 1]) , lineWidth : 10, opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 });
+        BLoc = new visual.Rect({win:psychoJS.window,size:BSsize, mask : undefined, anchor : 'center', ori : 0, pos: Bcopy[3],  fillColor : new util.Color([0, 0, 0]), lineColor : new util.Color([1, 0, 1]) , lineWidth : 10, opacity : 1, flipHoriz : false, flipVert : false, texRes : 128, interpolate : true, depth : -1.0 });
+
+        SocialSit.autoDraw = true;
+        Person.autoDraw = true;
+        SocialGroup.autoDraw = true;
+        Location.autoDraw = true;
+
+        frames += 1;
+        return Scheduler.Event.FLIP_REPEAT;
+    }
+
+    if (clock.getTime() - tBegin < trialtime){
+        if(psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
+            let Psize;
+            let Ssize;
+            let Bcopy;
+            winPrevSize = psychoJS.window.size;
+            Bcopy = JSON.parse(JSON.stringify(Bim_positions));
+            let offset = [0,-0.2]
+            let height = 0.05
+            let ratio = [1,1];
+            for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
+            Psize = [0.36*ratio[0],0.36*ratio[1]];
+            Ssize = [0.475*ratio[0],0.475*ratio[1]];
+            Person.size = Psize;
+            SocialSit.size = Ssize;
+            Location.size = Ssize;
+            SocialGroup.size = Ssize;
+            SocialSit.pos = Bcopy[indices[1]];
+            SocialGroup.pos = Bcopy[indices[1]];
+            Location.pos = Bcopy[indices[2]];
+        }
+
+        Person.opacity /= 1.01;
+        let keys = ready.getKeys({keyList:[], waitRelease:false});
+        _ready_allKeys = [].concat(keys);
+        if (_ready_allKeys.length > 0) {
+            ready.keys = _ready_allKeys[_ready_allKeys.length - 1].name;  // just the last key pressed
+            ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
+            ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
+            if (ready.keys == "escape"){return quitPsychoJS()}
+            if(ready.keys == "k"){
+                selected = false;
+		        SocialSit.opacity /= 4
+				Person.opacity = 1;
+		        Person.opacity /= 4
+		        SocialGroup.opacity /= 4
+		        Location.opacity/= 4
+                BSit.autoDraw = true;
+                BPerson.autoDraw = true;
+                BGroup.autoDraw = true;
+                BLoc.autoDraw = true;
+		        BSit.opacity /= 3.5
+		        BPerson.opacity /= 3.5
+		        BGroup.opacity /= 3.5
+		        BLoc.opacity/= 3.5
+
+		        for (let j = 0; j < TextStims.length;j++){TextStims[j].opacity /= 4}
+
+                return Scheduler.Event.NEXT}
+        }
+        frames += 1;
+        return Scheduler.Event.FLIP_REPEAT;
+    }else{
+        trialT += 1
+        tFixation = clock.getTime();
+        selected = false;
+        SocialSit.opacity /= 4
+		Person.opacity = 1;
+        Person.opacity /= 4
+        SocialGroup.opacity /= 4
+        Location.opacity/= 4
+        BSit.autoDraw = true;
+        BPerson.autoDraw = true;
+        BGroup.autoDraw = true;
+        BLoc.autoDraw = true;
+		BSit.opacity /= 3.5
+		BPerson.opacity /= 3.5
+		BGroup.opacity /= 3.5
+		BLoc.opacity/= 3.5
+
+        for (let j = 0; j < TextStims.length;j++){TextStims[j].opacity /= 4}
+        postselect = true;
+        if (trialT > 0){
+            trialT = 0;
+            return Scheduler.Event.NEXT;
+        }else{
+            frames += 1;
+            return Scheduler.Event.FLIP_REPEAT
+        };
+    };
+};
 
 function routB(iterations,trialtime){
     let lind = trialT
@@ -423,7 +610,7 @@ function routB(iterations,trialtime){
             postselect = false;
             tBegin = clock.getTime();
             frames += 1;
-            if (lind <= 5){for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = true}}
+            for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = true}
             return Scheduler.Event.FLIP_REPEAT;
         }
     }
@@ -441,13 +628,17 @@ function routB(iterations,trialtime){
         let Psize;
         let Ssize;
         let Bcopy;
+		let BLcopy;
         winPrevSize = psychoJS.window.size;
         Bcopy = JSON.parse(JSON.stringify(Bim_positions));
+        BLcopy = JSON.parse(JSON.stringify(BLim_positions));
         let offset = [0,-0.2]
         let height = 0.05
         let ratio = [1,1];
         for(let k=0; k< Object.keys(Bcopy).length;k++){for(let kk=0;kk<Bcopy[k].length;kk++){Bcopy[k][kk] = Bcopy[k][kk]*ratio[kk]}};
+        for(let k=1; k< Object.keys(BLcopy).length;k++){for(let kk=0;kk<BLcopy[k].length;kk++){BLcopy[k][kk] = BLcopy[k][kk]*ratio[kk]}};
         for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].height = height*ratio[1]};
+        for(let k=1; k< Object.keys(Bcopy).length;k++){TextStims[k-1].pos = BLcopy[indices[k-1]]};
         Psize = [0.36*ratio[0],0.36*ratio[1]];
         Ssize = [0.475*ratio[0],0.475*ratio[1]];
 
@@ -464,7 +655,7 @@ function routB(iterations,trialtime){
         SocialGroup.autoDraw = true;
         Location.autoDraw = true;
         frames += 1;
-        if (lind == 5){for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false}};
+//        if (lind == 5){for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false}};
         return Scheduler.Event.FLIP_REPEAT;
     }
 
@@ -561,7 +752,7 @@ var pStim,tStim,tasks,rankStims,questStim,running;
 var c,mousePersonIndex, mouseTaskIndex, count,mouseIsDown,mouseIsTaskDown,mouseIsPersonDown,okroutRun;
 var lineKeys, linetKeys,lines,personRank;
 var mouseIdleTime,mousePrevPos;
-async function routCbeg(nParty){
+async function routCbeg(nParty,Ex){
     tasks = tasksAll[nParty-1]
     pStim = {};
     tStim = {};
@@ -574,6 +765,10 @@ async function routCbeg(nParty){
         Ctim_positions[i] = [-0.5,lArr[i]];
     };
 
+    if (typeof Ex !== 'undefined'){
+        people = [...Array(5).keys()].map((i)=>"party4/people/"+(i+1)+".png");
+        tasks = tasksAll[3]
+    }
     for (let i = 0; i < people.length; i++){
         let p = people[i];
         pStim[i] = new visual.ImageStim({win:psychoJS.window,image:p,name:"Person " + i,pos:Cpim_positions[i],size:[0.1,0.1],color:'white'});
@@ -633,6 +828,25 @@ async function routCbeg(nParty){
     okroutRun = false;
     mouseIdleTime = clock.getTime();
     mousePrevPos = mouse.getPos();
+    if (typeof Ex !== 'undefined'){
+        lines[0][0].autoDraw = false;
+        lines[0][0] = new visual.ImageStim({win:psychoJS.window, image:people[0],pos:lines[0][0].pos,size:[0.1,0.1]});
+        lines[0][0].autoDraw = true;
+        lines[1][1].autoDraw = false;
+        lines[1][1] = new visual.ImageStim({win:psychoJS.window, image:people[0],pos:lines[1][1].pos,size:[0.1,0.1]});
+        lines[1][1].autoDraw = true;
+        for (let i = 0; i < Object.keys(lines).length; i++){
+            for (let j = 0; j < Object.keys(lines[i]).length;j++){
+                lines[i][j].opacity /= 4;
+            }
+            pStim[i].opacity /= 4;
+            tStim[i].opacity /= 4;
+        }
+        for (let i = 0; i < 2; i++){
+            rankStims[i].opacity /= 4;
+        }
+
+    }
     return Scheduler.Event.NEXT;
 }
 
@@ -1252,12 +1466,13 @@ function routDc(){
 function setText(fill){
     ready.clearEvents();
     instrText.text = fill + "\n Press any key to Continue";
+    instrText.wrapwidth = 10;
     instrText.autoDraw = true;
     notReady = true
     winPrevSize = psychoJS.window.size;
     return Scheduler.Event.NEXT;
 }
-async function routText(fill){
+async function routText(arg){
     if (psychoJS.window.size[0] != winPrevSize[0] || psychoJS.window.size[1] != winPrevSize[1]){
         winPrevSize = psychoJS.window.size.map((s)=>s);
         let ratio = [1,1];
@@ -1275,6 +1490,31 @@ async function routText(fill){
             else{
                 notReady = false;
                 instrText.autoDraw = false;
+                console.log(typeof arg,arg);
+				if (typeof arg !== 'undefined' && arg === "ExB"){
+                    BSit.autoDraw = false;
+                    BPerson.autoDraw = false;
+                    BGroup.autoDraw = false;
+                    BLoc.autoDraw = false;
+
+	                SocialSit.autoDraw = false
+	                Person.autoDraw = false
+	                SocialGroup.autoDraw = false
+	                Location.autoDraw = false
+	                for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false};
+				}else if(typeof arg !== 'undefined' && arg === "ExC"){
+                    for (let i = 0; i < Object.keys(lines).length; i++){
+                        for (let j = 0; j < Object.keys(lines[i]).length;j++){
+                            lines[i][j].autoDraw = false;
+                        }
+                        pStim[i].autoDraw = false;
+                        tStim[i].autoDraw = false;
+                    }
+                    for (let i = 0; i < 2; i++){
+                        rankStims[i].autoDraw = false;
+                    }
+                }
+
                 return Scheduler.Event.NEXT;
             }
         };
