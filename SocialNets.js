@@ -226,10 +226,10 @@ flowScheduler.add(setText, "We will give you one example set of images in a Home
 flowScheduler.add(routText);
 flowScheduler.add(routBExbeg);
 flowScheduler.add(routBEx,8);
-flowScheduler.add(setText,"A man (Top image) is constructing a house (Situation image) on a beach resort (Location image) after attending a robotics club with some friends (Group image)","ExB");
+flowScheduler.add(setText,"A man (RED) is constructing a house (GREEN) on a beach resort (PURPLE) after attending a robotics club with some friends (BLUE)","ExB");
 flowScheduler.add(routText,"ExB");
 flowScheduler.add(routCbeg,3,"Ex");
-flowScheduler.add(setText, "Given a Home Construction scenario, this man will be ranked first for the role of contractor, and second for the role of architect.")
+flowScheduler.add(setText, "Given a Home Construction scenario, this man will be ranked first for the role of contractor, and second for the role of architect.\n  You will also rank the other individuals using the stories you create with their activity, location, and group images.")
 flowScheduler.add(routText,"ExC");
 for (let j = 1; j < parties+1; j++){
     flowScheduler.add(setText,"You'll now view sets of 3 images comprising locations, groups and activities corresponding to an individual. When viewing the 3 images, please imagine the listed person performing the given activity in the displayed location with the presented group of people. Please try to remember these events that you imagine. You will later need to accurately assign specific roles to the individuals seen for a " + TASKNAME[j-1] + ".");
@@ -239,7 +239,7 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(routAEnd)
     flowScheduler.add(routBbeg,1,j);
     flowScheduler.add(routB,2,8);
-    flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first and second best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. You can always overwrite an assigned role by dragging a person from the right column to the ranking. Also, note that individuals can be ranked first or second only once.")
+    flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first and second best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. You can always overwrite an assigned rank for a role by dragging a person from the right column to the ranking. Also, note that individuals can be ranked first or second only once.")
     flowScheduler.add(routText);
     flowScheduler.add(routCbeg,j);
     flowScheduler.add(routC);
@@ -354,7 +354,7 @@ function routA(time, trials){
 var people,seen,situation,sitimages,localation,locimages,socgroups,socimages;
 var party;
 var lStim;
-let labels = ["Situation", "Group", "Location"];
+let labels = ["Activity", "Group", "Location"];
 var TextStims = [];
 
 var locs,socs,sits,trials;
