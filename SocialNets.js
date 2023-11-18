@@ -414,7 +414,8 @@ async function routBbeg(time,nParty){
             lStim.push([people[i], sitays[i][j],groupays[i][j],locays[i][j]]);
         };
     };
-    let stimlist = [persons,sitays,groupays,locays];
+    let stimlist = [people,sitays,groupays,locays];
+
     // What a wild line. I had this in python to do a deep copy, wonder if it's
     // necessary here too?
     let Stims = [...Array(stimlist.length).keys()].map((i)=>[...Array(stimlist[i].length).keys()].map((j)=>stimlist[i][j]));
@@ -920,8 +921,8 @@ function routC(){
         for (let i = 0; i < Object.keys(lineKeys).length; i++){
             let l = lineKeys[i];
             let temp = Object.keys(l).length
-            if (temp == 2 && pStim[i].opacity != 0.8){pStim[i].opacity= 0.8;console.log("Turning RED")}
-            else if (temp != 2 && pStim[i].opacity!= 1){pStim[i].opacity= 1; console.log("TURNING WHITE")};
+            if (temp == 2 && pStim[i].opacity != 0.8){pStim[i].opacity= 0.8;}
+            else if (temp != 2 && pStim[i].opacity!= 1){pStim[i].opacity= 1;};
         };
 
         let clines = 0;
@@ -1041,7 +1042,7 @@ function routC(){
                     lines[key][rank].autoDraw = false;
                     lines[key][rank] = new visual.ImageStim({win:psychoJS.window, image:people[mousePersonIndex],pos:lines[key][rank].pos,size:[0.1*ratio[1],0.1*ratio[1]]});
                     lines[key][rank].autoDraw = true;
-                    console.log(key,"to",mousePersonIndex);
+                    console.log(key,"to",mousePersonIndex,"with rank",rank);
                 };
                 mousePersonIndex = -1;
             };
@@ -1063,7 +1064,6 @@ function routC(){
         }
 
         psychoJS.experiment.addData("rankDec",JSON.stringify(lineKeys));
-
         questStim.autoDraw = false;
         return Scheduler.Event.NEXT;
     }
@@ -1118,6 +1118,11 @@ var Schooses,Lchooses;
 async function routDbeg(trials){
 
     let toFill = shuffler([...Array(4*trials).keys()]);
+    correct = [...Array(4*trials).keys()].map((i)=>-1);
+    for (let i = 0; i < 2*trials;i++){
+        correct[i] = 1;
+    }
+    correct = shuffler(correct);
     pind = [...Array(4*trials).keys()].map((i) => 0);
     let P = 0;
     for(let i = 0; i < 4*trials; i++){
@@ -1289,8 +1294,7 @@ function routD(trials){
         }
     }
     if (!selectedLR){
-        leftorRight = getRandInt(0,2)*2-1;
-        correct.push(leftorRight);
+        leftorRight = correct[t]
         selectedLR = true;
         let p = pind[t];
         let e = eind[t];
