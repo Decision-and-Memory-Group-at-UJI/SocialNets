@@ -250,8 +250,9 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(routDbeg,10);
     flowScheduler.add(routD,40);
 }
+flowScheduler.add(selfRankBeg);
+flowScheduler.add(selfRank);
 flowScheduler.add(quitPsychoJS, '', true);
-
 dialogCancelScheduler.add(quitPsychoJS, '', false);
 var _ready_allKeys;
 const clock = new util.Clock();
@@ -291,12 +292,13 @@ var instrText = new visual.TextStim({win:psychoJS.window, name:'Text',
         languageStyle:'LTR',
         depth:0.0});
 
-var confText = new visual.TextStim({win:psychoJS.window, name:'Text',
+var selfRankText = new visual.TextStim({win:psychoJS.window, name:'Text',
         font:'Arial',
-        units:'height', pos:[0, 0], height:0.05, wrapWidth:null, ori:0,
+        units:'height', pos:[0, .15], height:0.05, wrapWidth:null, ori:0,
         color:'white', colorSpace:'rgb', opacity:1,
         languageStyle:'LTR',
         depth:0.0});
+
 var notReady;
 
 
@@ -362,6 +364,11 @@ var trialT;
 var selected,postselect,iters,indices;
 var groupays,locays,sitays;
 var winPrevSize,choosePeople;
+
+var rankDisp;
+var rankDPos;
+var mouseTaskPress;
+
 async function routBbeg(time,nParty){
     let party = "party" + nParty;
     winPrevSize = psychoJS.window.size.map((s)=>s);
@@ -1526,6 +1533,104 @@ async function routText(arg){
     frames += 1;
     return Scheduler.Event.FLIP_REPEAT;
 };
+
+var whatSelfRanks = [];
+function selfRankBeg(){
+    trialT = 0;
+    selfRankText.text = "If you were going to involve yourself in a " + TASKNAME[0].toUpperCase() + ", which role would you place yourself in? Click on the labels below to select your role. The text will highlight GREEN for your first choice, and BLUE for your second choice"
+    selfRankText.text += "\n If for any reason you need to reset your select, please press 'r'"
+    selfRankText.autoDraw = true;
+    rankDisp = []
+    rankDPos = [[-0.6,-0.35],[-0.3,-0.35],[0,-0.35],[0.3,-0.35],[0.6,-0.35]]
+    for(let i = 0; i < 5; i++){
+        let temp = new visual.TextStim({win:psychoJS.window,text:tasksAll[0][i],pos:rankDPos[i], height:0.05, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'})
+        temp.autoDraw = true;
+        rankDisp.push(temp);
+    }
+    mouseIsDown = false;
+    mouseIsTaskDown = false;
+    whatSelfRanks = [[],[]];
+    mouseTaskPress = -1;
+    return Scheduler.Event.NEXT;
+}
+
+function selfRank(parties){
+    if (trialT >=2){
+        psychoJS.experiment.addData("selfRanks",whatSelfRanks)
+        return Scheduler.Event.NEXT;
+    }
+    if(whatSelfRanks[trialT].length <2){
+
+         if (mouse.getPressed()[0] == 1 && mouseIsDown == false){
+            mouseIsDown = true;
+            mouseTaskPress = -1;
+            for (let key = 0; key < rankDisp.length; key++){
+                let item = rankDisp[key];
+                if (item.contains(mouse)){
+                    if (whatSelfRanks[trialT].length<1){
+                        item.color = "green";
+                        mouseTaskPress = key;
+                    }else if (whatSelfRanks[trialT][0] != key){
+                        item.color = "blue";
+                        mouseTaskPress = key;
+                    } 
+                    break;
+                };
+            };
+         };
+         if (mouse.getPressed()[0] == 0 && mouseIsDown){
+            mouseIsDown = false;
+            let taskCoincide = false;
+            if (mouseTaskPress != -1){
+                for (let key = 0; key < rankDisp.length; key++){
+                    let item = rankDisp[key];
+                    if (item.contains(mouse)){
+                        if (key == mouseTaskPress){
+                            whatSelfRanks[trialT].push(key);
+                            taskCoincide = true;
+                        }
+                        break;
+                    };
+                };
+                if (!taskCoincide)
+                    rankDisp[mouseTaskPress].color = "white";
+             };
+         };
+
+         let keys = ready.getKeys({keyList:[], waitRelease:false});
+         _ready_allKeys = [].concat(keys);
+         if (_ready_allKeys.length > 0) {
+             ready.keys = _ready_allKeys[_ready_allKeys.length - 1].name;  // just the last key pressed
+             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
+             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
+             if (ready.keys == 'r'){
+                 for (let key = 0; key < rankDisp.length; key++){
+                     rankDisp[key].color = 'white'
+                 whatSelfRanks[trialT] = []
+                 }
+             };
+         };
+
+         return Scheduler.Event.FLIP_REPEAT;
+    }else{
+        trialT += 1;
+        for(let i = 0; i < 5; i++){
+            rankDisp[i].autoDraw = false;
+        }
+        rankDisp = []
+        if (trialT <2){
+            selfRankText.text = "If you were going to involve yourself in a " + TASKNAME[trialT].toUpperCase() + ", which role would you place yourself in? Click on the labels below to select your role. The text will highlight GREEN for your first choice, and BLUE for your second choice"
+            selfRankText.text += "\n If for any reason you need to reset your select, please press 'r'"
+            for(let i = 0; i < 5; i++){
+                let temp = new visual.TextStim({win:psychoJS.window,text:tasksAll[trialT][i],pos:rankDPos[i], height:0.05, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'})
+                temp.autoDraw = true;
+                rankDisp.push(temp);
+            }
+        }
+        return Scheduler.Event.FLIP_REPEAT;
+    }
+}
+
 
 async function quitPsychoJS(message, isCompleted) {
   // Check for and save orphaned data
