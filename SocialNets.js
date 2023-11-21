@@ -276,6 +276,7 @@ var tBegin;
 var timeCF;
 var timeRank;
 var timeDec;
+var tSelfRank;
 
 const fixation = new visual.TextStim({win: psychoJS.window,name:'Text',
         text:"+",
@@ -1211,6 +1212,7 @@ async function routDbeg(trials){
         eind[P1eooch[i]] = 1;eind[P1eonoch[i]] = 1;eind[P2eooch[i]] = 1;eind[P2eonoch[i]] = 1;eind[P3eooch[i]] = 1;
         eind[P3eonoch[i]] = 1;eind[P4eooch[i]] = 1;eind[P4eonoch[i]] = 1;eind[P5eooch[i]] = 1;eind[P5eonoch[i]] = 1;
     }
+
     for(let i = 1; i < pind.length - 1; i++){
         if(pind[i] == pind[i-1]){
             if(bwgroup[i] != bwgroup[i-1]){
@@ -1387,7 +1389,7 @@ function routD(trials){
                 Stimuls[1].autoDraw = false;
                 Stimuls[2].autoDraw = false;
                 Stimuls = [];
-                if (confRats >= 10){
+                if (true){
                     slider.autoDraw = false;
                     textConf.autoDraw = false;
                     doingConf = false;
@@ -1416,7 +1418,7 @@ function routD(trials){
                 Stimuls[1].autoDraw = false;
                 Stimuls[2].autoDraw = false;
                 Stimuls = [];
-                if (confRats >= 10){
+                if (true){
                     slider.autoDraw = false;
                     textConf.autoDraw = false;
                     doingConf = false;
@@ -1534,7 +1536,8 @@ async function routText(arg){
     return Scheduler.Event.FLIP_REPEAT;
 };
 
-var whatSelfRanks = [];
+var whatSelfRanks;
+var selfRankRT;
 function selfRankBeg(){
     trialT = 0;
     selfRankText.text = "If you were going to involve yourself in a " + TASKNAME[0].toUpperCase() + ", which role would you place yourself in? Click on the labels below to select your role. The text will highlight GREEN for your first choice, and BLUE for your second choice"
@@ -1551,12 +1554,18 @@ function selfRankBeg(){
     mouseIsTaskDown = false;
     whatSelfRanks = [[],[]];
     mouseTaskPress = -1;
+    selfRankRT = []
+    tSelfRank = clock.getTime();
+    doingConf = false;
+    questStim.color = 'red'
+    questStim.pos = [questStim.pos[0],questStim.pos[1]+0.2]
     return Scheduler.Event.NEXT;
 }
 
 function selfRank(parties){
     if (trialT >=2){
-        psychoJS.experiment.addData("selfRanks",whatSelfRanks)
+        psychoJS.experiment.addData("selfRanks",whatSelfRanks);
+        psychoJS.experiment.addData("selfRankRT",selfRankRT);
         return Scheduler.Event.NEXT;
     }
     if(whatSelfRanks[trialT].length <2){
@@ -1578,6 +1587,7 @@ function selfRank(parties){
                 };
             };
          };
+
          if (mouse.getPressed()[0] == 0 && mouseIsDown){
             mouseIsDown = false;
             let taskCoincide = false;
@@ -1606,26 +1616,41 @@ function selfRank(parties){
              if (ready.keys == 'r'){
                  for (let key = 0; key < rankDisp.length; key++){
                      rankDisp[key].color = 'white'
-                 whatSelfRanks[trialT] = []
                  }
+                 whatSelfRanks[trialT] = []
              };
          };
-
+         if(whatSelfRanks[trialT].length >=2){
+             questStim.autoDraw = true;
+         }
          return Scheduler.Event.FLIP_REPEAT;
     }else{
-        trialT += 1;
-        for(let i = 0; i < 5; i++){
-            rankDisp[i].autoDraw = false;
-        }
-        rankDisp = []
-        if (trialT <2){
-            selfRankText.text = "If you were going to involve yourself in a " + TASKNAME[trialT].toUpperCase() + ", which role would you place yourself in? Click on the labels below to select your role. The text will highlight GREEN for your first choice, and BLUE for your second choice"
-            selfRankText.text += "\n If for any reason you need to reset your select, please press 'r'"
+        let ret = routOK();
+        if (ret == 'k'){
+            questStim.autoDraw = false;
+            selfRankRT.push(clock.getTime() - tSelfRank);
+            tSelfRank = clock.getTime();
+            trialT += 1;
             for(let i = 0; i < 5; i++){
-                let temp = new visual.TextStim({win:psychoJS.window,text:tasksAll[trialT][i],pos:rankDPos[i], height:0.05, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'})
-                temp.autoDraw = true;
-                rankDisp.push(temp);
+                rankDisp[i].autoDraw = false;
             }
+            rankDisp = []
+            if (trialT <2){
+                selfRankText.text = "If you were going to involve yourself in a " + TASKNAME[trialT].toUpperCase() + ", which role would you place yourself in? \n\n Click on the labels below to select your role. The text will highlight GREEN for your first choice, and BLUE for your second choice"
+                selfRankText.text += "\n If for any reason you need to reset your selection, please press 'r'"
+                for(let i = 0; i < 5; i++){
+                    let temp = new visual.TextStim({win:psychoJS.window,text:tasksAll[trialT][i],pos:rankDPos[i], height:0.05, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'})
+                    temp.autoDraw = true;
+                    rankDisp.push(temp);
+                }
+            }
+        }else if (ret == 'r'){
+            questStim.autoDraw = false;
+            for (let key = 0; key < rankDisp.length; key++){
+                rankDisp[key].color = 'white'
+            }
+            whatSelfRanks[trialT] = []
+
         }
         return Scheduler.Event.FLIP_REPEAT;
     }
