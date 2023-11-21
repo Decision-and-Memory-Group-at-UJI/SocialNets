@@ -46,8 +46,8 @@ for ii,part in enumerate(sorted(glob.glob("data/*.csv"))):
 
         Soc = list(map(lambda x: "Social" if x else "NonSocial",Soc))
         BWgroup = list(map(lambda x: "Between" if x else "Within",BWgroup))
-        PDR += [[performance,Soc,BWgroup,np.repeat(ii,40),np.repeat(k,40)]]
         RT0 = np.array(json.loads(X.retrievalRT[k]))
+        PDR += [[performance,Soc,BWgroup,RT0,np.repeat(ii,40),np.repeat(k,40)]]
         Conf0 = np.array(json.loads(X.retrievalConf[k]),dtype=float)
         RT0 = np.delete(RT0,np.where(Conf0!=Conf0)[0])
         Conf0 = np.delete(Conf0,np.where(Conf0!=Conf0)[0])
@@ -64,6 +64,8 @@ RankRet = []
 toPlot = []
 All = np.array(All)
 AllCompAcc = np.array(AllAcc).sum(-2,keepdims=True).mean(-1)
+AllFirst = np.array(AllAcc)[...,0,:].mean(-1)
+AllSecond = np.array(AllAcc)[...,1,:].mean(-1)
 import scipy.stats as stats
 RNum = [1,2]
 ANOVA = ["WI_S","WI_NS", "BW_S", "BW_NS"]
@@ -120,14 +122,16 @@ plt.savefig("PerfConf")
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import statsmodels.formula.api as smf
-PDP = [[pd.DataFrame({"performance":PD[i][j][0].astype(int),"Social":PD[i][j][1],"Episode":PD[i][j][2],"Participant":PD[i][j][3],"Run":PD[i][j][4],"Ranking":AllCompAcc[i,j].squeeze().repeat(40)}) for j in range(2)] for i in range(6)]
+PDP = [[pd.DataFrame({"performance":PD[i][j][0].astype(int),"Social":PD[i][j][1],"Episode":PD[i][j][2],"RT":PD[i][j][3] - PD[i][j][3].mean(),"Participant":PD[i][j][4],"Run":PD[i][j][5],"Ranking":(AllCompAcc[i,j].squeeze().repeat(40)),"Time":(np.arange(40))/40}) for j in range(2)] for i in range(6)]
 PDPCat = pd.concat([PDP[i][j] for i in range(6) for j in range(2)])
 PDPCat["RunPart"] = PDPCat["Participant"].astype(str)+PDPCat["Run"].astype(str)
-fit = smf.mixedlm('performance ~ Social+Episode +Ranking + Episode:Social +Social:Ranking + Episode:Ranking + Episode:Social:Ranking',data=PDPCat,groups=PDPCat['RunPart']).fit(reml=False)
+fit = smf.mixedlm('performance ~ Episode+Social+Ranking+Episode:Social+Social:Ranking+Episode:Ranking+Episode:Social:Ranking',data=PDPCat,groups=PDPCat['RunPart'],).fit(reml=False)
 plt.figure(figsize=[10,8])
 plt.plot(fit.params.values, fit.params.keys(),"*")
 for key,up,low in zip(fit.params.keys(), fit.conf_int(0.05)[0], fit.conf_int(0.05)[1]):
     plt.plot([low,up],[key,key])
+plt.axvline(0,color='red')
+print("R2: ",fit.fittedvalues.var()/(fit.fittedvalues.var()+fit.cov_re.values.squeeze()+ fit.resid.var()))
 plt.xlabel("Coeff Value")
 plt.tight_layout()
 plt.savefig("LMEFit")
