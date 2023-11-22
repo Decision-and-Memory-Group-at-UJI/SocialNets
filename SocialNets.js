@@ -239,7 +239,9 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(routAEnd)
     flowScheduler.add(routBbeg,1,j);
     flowScheduler.add(routB,2,8);
-    flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first and second best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role. Please rank them as quickly and accurately as possible. You can always overwrite an assigned rank for a role by dragging a person from the right column to the ranking. Also, note that individuals can be ranked first or second only once.")
+    flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first and second best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role.");
+    flowScheduler.add(routText);
+    flowScheduler.add(setText,"Please rank them as quickly and accurately as possible. You can always overwrite an assigned rank for a role by dragging a person from the right column to the ranking. Also, note that individuals can be ranked first or second only once.")
     flowScheduler.add(routText);
     flowScheduler.add(routCbeg,j);
     flowScheduler.add(routC);
@@ -288,14 +290,14 @@ const fixation = new visual.TextStim({win: psychoJS.window,name:'Text',
 
 var instrText = new visual.TextStim({win:psychoJS.window, name:'Text',
         font:'Arial',
-        units:'height', pos:[0, 0], height:0.05, wrapWidth:null, ori:0,
+        units:'height', pos:[0, 0], height:0.05, wrapWidth:1.5, ori:0,
         color:'white', colorSpace:'rgb', opacity:1,
         languageStyle:'LTR',
         depth:0.0});
 
 var selfRankText = new visual.TextStim({win:psychoJS.window, name:'Text',
         font:'Arial',
-        units:'height', pos:[0, .15], height:0.05, wrapWidth:null, ori:0,
+        units:'height', pos:[0, .15], height:0.05, wrapWidth:1.5, ori:0,
         color:'white', colorSpace:'rgb', opacity:1,
         languageStyle:'LTR',
         depth:0.0});
@@ -824,7 +826,7 @@ async function routCbeg(nParty,Ex){
                     colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'}));
         rankStims[j].autoDraw = true;
     };
-    questStim = new visual.TextStim({win:psychoJS.window, name:'endText', text:'If this looks correct to you, please press \'k\', otherwise press \'r\'', font:'Arial', units:'height', pos:[tStim[0].pos[0]+0.5, tStim[0].pos[1]-0.15], height:0.05, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0});
+    questStim = new visual.TextStim({win:psychoJS.window, name:'endText', text:'If this looks correct to you, please press \'k\', otherwise press \'r\'', font:'Arial', units:'height', pos:[tStim[0].pos[0]+0.5, tStim[0].pos[1]-0.15], height:0.04, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0});
 
     c = ['red','green','blue'];
     mousePersonIndex = -1;
@@ -1084,11 +1086,11 @@ async function routCConfbeg(){
     textConf = new visual.TextStim({win:psychoJS.window, name:'endText',
                 text:'How confident are you? Click the slider, and drag the red circle to your confidence level. Then press spacebar to continue',
                 font:'Arial',
-                units:'height', pos:[0, 0.35], height:0.05, wrapWidth:null, ori:0,
+                units:'height', pos:[0, 0.25], height:0.05, wrapWidth:null, ori:0,
                 color:'white', colorSpace:'rgb', opacity:1,
                 languageStyle:'LTR',
                 depth:0.0});
-    slider = new visual.Slider({win:psychoJS.window,labels: ["1", "2", "3", "4", "5", "6", "7"],ticks:[1,2,3,4,5,6,7],granularity:0,pos:[0,0],size:[1,0.1]});
+    slider = new visual.Slider({win:psychoJS.window,lineColor:'white',labelColor:'white',labels: ["1", "2", "3", "4", "5", "6", "7"],ticks:[1,2,3,4,5,6,7],granularity:0,pos:[0,0],size:[1,0.1]});
     slider.autoDraw = true;
     textConf.autoDraw = true;
     return Scheduler.Event.NEXT;
@@ -1389,7 +1391,7 @@ function routD(trials){
                 Stimuls[1].autoDraw = false;
                 Stimuls[2].autoDraw = false;
                 Stimuls = [];
-                if (true){
+                if (false){
                     slider.autoDraw = false;
                     textConf.autoDraw = false;
                     doingConf = false;
@@ -1418,7 +1420,7 @@ function routD(trials){
                 Stimuls[1].autoDraw = false;
                 Stimuls[2].autoDraw = false;
                 Stimuls = [];
-                if (true){
+                if (false){
                     slider.autoDraw = false;
                     textConf.autoDraw = false;
                     doingConf = false;
