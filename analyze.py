@@ -1,7 +1,14 @@
 import numpy as np
+from pymer4.models import Lmer
+import seaborn as sns
 import pandas as pd
 import json
 import glob
+import statsmodels.genmod.bayes_mixed_glm as smgb
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+import statsmodels.formula.api as smf
+
 All = []
 AllAcc = []
 corrs = []
@@ -44,7 +51,7 @@ for ii,part in enumerate(sorted(glob.glob("data/*.csv"))):
         bwGaSoc = performance[np.where(np.logical_and(np.array(BWgroup) == 1,np.array(Soc) == 0))[0]].mean()
         bwGaLoc = performance[np.where(np.logical_and(np.array(BWgroup) == 1,np.array(Soc) == 1))[0]].mean()
 
-        Soc = list(map(lambda x: "Social" if x else "NonSocial",Soc))
+        Soc = list(map(lambda x: "Social" if not x else "NonSocial",Soc))
         BWgroup = list(map(lambda x: "Between" if x else "Within",BWgroup))
         RT0 = np.array(json.loads(X.retrievalRT[k]))
         PDR += [[performance,Soc,BWgroup,RT0,np.repeat(ii,40),np.repeat(k,40)]]
@@ -119,21 +126,25 @@ plt.xticks([1,2],['Correct','Incorrect'])
 plt.title("T test {0:.3f}, p value {1:.3f}".format(*stats.ttest_ind(C[1][C[2]==1],C[1][C[2]!=1])))
 plt.ylabel("Confidence")
 plt.savefig("PerfConf")
-import statsmodels.api as sm
-from statsmodels.formula.api import ols
-import statsmodels.formula.api as smf
 PDP = [[pd.DataFrame({"performance":PD[i][j][0].astype(int),"Social":PD[i][j][1],"Episode":PD[i][j][2],"RT":PD[i][j][3] - PD[i][j][3].mean(),"Participant":PD[i][j][4],"Run":PD[i][j][5],"Ranking":(AllCompAcc[i,j].squeeze().repeat(40)),"Time":(np.arange(40))/40}) for j in range(2)] for i in range(6)]
-PDPCat = pd.concat([PDP[i][j] for i in range(6) for j in range(2)])
+PDPCat = pd.concat([PDP[i][j] for i in range(6) for j in range(2)],ignore_index=True)
 PDPCat["RunPart"] = PDPCat["Participant"].astype(str)+PDPCat["Run"].astype(str)
-fit = smf.mixedlm('performance ~ Episode+Social+Ranking+Episode:Social+Social:Ranking+Episode:Ranking+Episode:Social:Ranking',data=PDPCat,groups=PDPCat['RunPart'],).fit(reml=False)
+PDPCat['Time'] -= PDPCat['Time'].mean()
+PDPCat['Ranking'] -= PDPCat['Ranking'].mean()
+model = Lmer('performance~ (1|Participant:Run) + Episode+Social+Episode:Social+Ranking+ Ranking:(Episode+Social+Episode:Social)',data=PDPCat,family='binomial')
+fit = model.fit()
+plt.close('all')
 plt.figure(figsize=[10,8])
-plt.plot(fit.params.values, fit.params.keys(),"*")
-for key,up,low in zip(fit.params.keys(), fit.conf_int(0.05)[0], fit.conf_int(0.05)[1]):
+plt.plot(fit['Estimate'].values, fit['Estimate'].keys(),"*")
+for key,up,low in zip(fit['Estimate'].keys(), fit["2.5_ci"].values, fit["97.5_ci"].values):
     plt.plot([low,up],[key,key])
 plt.axvline(0,color='red')
-print("R2: ",fit.fittedvalues.var()/(fit.fittedvalues.var()+fit.cov_re.values.squeeze()+ fit.resid.var()))
+R2 = np.var(model.fits)/(np.var(model.fits)+model.ranef_var['Var'].values + np.var(model.residuals.var()))
+print("R2: ",R2)
 plt.xlabel("Coeff Value")
 plt.tight_layout()
 plt.savefig("LMEFit")
-fit.summary().tables[1].to_csv("SummaryMEff.csv")
-print(fit.summary(alpha=0.05))
+print(fit)
+sns.catplot(x='Episode',y='fits',hue='Social',data=model.data,col='Participant',col_wrap=3,capsize=.2, errorbar="se",kind="point", height=6, aspect=.75)
+plt.tight_layout()
+plt.savefig("LMEAnovaPlot")
