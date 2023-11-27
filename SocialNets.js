@@ -1367,8 +1367,29 @@ function routD(trials){
         }
 
         // Kick user out of experiment if they take too long to reply
-        if (clock.getTime() - timeDec > 60){return quitPsychoJS("Kicked out for being idle for too long")};
-        for (let s = 0; s < Stimuls.length; s++){Stimuls[s].draw()};
+        let currTime = clock.getTime()
+        if (currTime - timeDec > 60){return quitPsychoJS("Kicked out for being idle for too long")};
+        if (currTime - timeDec > 11){
+            choice = correct[t]^1
+            let RT = clock.getTime() - timeDec;
+            choices.push(choice)
+            RTs.push(RT)
+            confidences.push(0);
+            confRTs.push(0);
+            Stimuls[0].autoDraw = false;
+            Stimuls[1].autoDraw = false;
+            Stimuls[2].autoDraw = false;
+            Stimuls = [];
+            slider.autoDraw = false;
+            textConf.autoDraw = false;
+            doingConf = false;
+            notReady = false;
+            postselect = true;
+            slider.reset();
+            tFixation = clock.getTime();
+            choice = 0;
+            trialT += 1;
+        }
         let keys = ready.getKeys({keyList:[], waitRelease:false});
         _ready_allKeys = [].concat(keys);
         if (_ready_allKeys.length > 0) {
@@ -1439,13 +1460,14 @@ function routD(trials){
                     notReady = true;
                     timeCF = clock.getTime();
                 }
-
             };
         };
-        let mRT = 0;for(let z = 0; z < RTs.length;z++){mRT += RTs[z]};
-        // Kick user out of experiment if they are responding way too fast on
-        // average.
-        if (mRT/RTs.length <0.1 && RTs.length > 5){return quitPsychoJS("Kicked out for suspiciously fast responses")};
+        if (RTs.length > 5){
+            let mRT = 0;for(let z = RTs.length-5; z < RTs.length;z++){mRT += RTs[z]};
+            // Kick user out of experiment if they are responding way too fast on
+            // average.
+            if (mRT/5 <0.1  || mRT/5 > 10){return quitPsychoJS("Kicked out for too many consecutive outlier response times")};
+        }
         frames += 1;
         return Scheduler.Event.FLIP_REPEAT;
     };
