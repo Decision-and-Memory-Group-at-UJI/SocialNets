@@ -1,6 +1,9 @@
 import numpy as np
+from sklearn.metrics import roc_curve,roc_auc_score
 from pymer4.models import Lmer
+from pymer4.stats import lrt
 import seaborn as sns
+import matplotlib.pyplot as plt
 import pandas as pd
 import json
 import glob
@@ -92,7 +95,6 @@ for i in range(4):
     RankRet += [Runs]
 RankRet = np.array(RankRet).squeeze()
 toPlot = np.array(toPlot).squeeze()
-import matplotlib.pyplot as plt
 plt.ion()
 fig,ax = plt.subplots(2,2,figsize=(8,8))
 a = ax.ravel()
@@ -126,13 +128,16 @@ plt.xticks([1,2],['Correct','Incorrect'])
 plt.title("T test {0:.3f}, p value {1:.3f}".format(*stats.ttest_ind(C[1][C[2]==1],C[1][C[2]!=1])))
 plt.ylabel("Confidence")
 plt.savefig("PerfConf")
-PDP = [[pd.DataFrame({"performance":PD[i][j][0].astype(int),"Social":PD[i][j][1],"Episode":PD[i][j][2],"RT":PD[i][j][3] - PD[i][j][3].mean(),"Participant":PD[i][j][4],"Run":PD[i][j][5],"Ranking":(AllCompAcc[i,j].squeeze().repeat(40)),"Time":(np.arange(40))/40}) for j in range(2)] for i in range(6)]
+PDP = [[pd.DataFrame({"performance":PD[i][j][0].astype(int),"Social":PD[i][j][1],"Episode":PD[i][j][2],"RT":PD[i][j][3],"Participant":PD[i][j][4],"Run":PD[i][j][5],"Ranking":(AllCompAcc[i,j].squeeze().repeat(40)),"Time":(np.arange(40))/40}) for j in range(2)] for i in range(6)]
 PDPCat = pd.concat([PDP[i][j] for i in range(6) for j in range(2)],ignore_index=True)
 PDPCat["RunPart"] = PDPCat["Participant"].astype(str)+PDPCat["Run"].astype(str)
 PDPCat['Time'] -= PDPCat['Time'].mean()
 PDPCat['Ranking'] -= PDPCat['Ranking'].mean()
 model = Lmer('performance~ (1|Participant:Run) + Episode+Social+Episode:Social+Ranking+ Ranking:(Episode+Social+Episode:Social)',data=PDPCat,family='binomial')
+model2 = Lmer('performance~ (1|Participant:Run)+ Episode+Social+Episode:Social+Ranking+ Ranking:(Episode+Social+Episode:Social) + Time + Time:(Episode+Social+Episode:Social+Ranking+ Ranking:(Episode+Social+Episode:Social))',data=PDPCat,family='binomial')
 fit = model.fit()
+fit2 = model2.fit()
+print(lrt([model,model2]))
 plt.close('all')
 plt.figure(figsize=[10,8])
 plt.plot(fit['Estimate'].values, fit['Estimate'].keys(),"*")
@@ -140,11 +145,27 @@ for key,up,low in zip(fit['Estimate'].keys(), fit["2.5_ci"].values, fit["97.5_ci
     plt.plot([low,up],[key,key])
 plt.axvline(0,color='red')
 R2 = np.var(model.fits)/(np.var(model.fits)+model.ranef_var['Var'].values + np.var(model.residuals.var()))
+R22 = np.var(model2.fits)/(np.var(model2.fits)+model2.ranef_var['Var'].values + np.var(model2.residuals.var()))
 print("R2: ",R2)
 plt.xlabel("Coeff Value")
 plt.tight_layout()
 plt.savefig("LMEFit")
 print(fit)
-sns.catplot(x='Episode',y='fits',hue='Social',data=model.data,col='Participant',col_wrap=3,capsize=.2, errorbar="se",kind="point", height=6, aspect=.75)
-plt.tight_layout()
+model.data['EpisodeSocial'] = list(map(lambda a,b: a+":"+b,model.data['Episode'],model.data['Social']))
+model.data['Ranking'] += AllCompAcc.mean()
+g = sns.lmplot(x='Ranking',y='fits',hue='EpisodeSocial',data=model.data)#,col='Participant',col_wrap=3,capsize=.2, errorbar="se",kind="point", height=6, aspect=.75)
 plt.savefig("LMEAnovaPlot")
+plt.figure()
+from scipy.interpolate import make_interp_spline
+
+for e in ["Within","Between"]:
+ for s in ["Social", "NonSocial"]:
+  fpr,tpr,_=roc_curve(model.data.performance[np.logical_and(model.data.Episode==e,model.data.Social==s)], model.data.fits[ np.logical_and(model.data.Episode==e,model.data.Social==s)])
+  dpr = pd.DataFrame({"fpr":fpr,"tpr":tpr}).groupby("fpr").mean().reset_index() 
+  plt.plot(fpr,tpr,label="{0}:{1}, AUC:{2:0.3f}".format(e,s,roc_auc_score(model.data.performance[np.logical_and(model.data.Episode==e,model.data.Social==s)], model.data.fits[ np.logical_and(model.data.Episode==e,model.data.Social==s)])))
+plt.plot([0,1],[0,1],label="Random")
+plt.xlabel("FPR")
+plt.ylabel("TPR")
+plt.legend()
+plt.tight_layout()
+plt.savefig("LMEAUC")
