@@ -225,7 +225,7 @@ flowScheduler.add(routText);
 flowScheduler.add(setText, "We will give you one example set of images in a Home Construction scenario to help you understand the experiment.");
 flowScheduler.add(routText);
 flowScheduler.add(routBExbeg);
-flowScheduler.add(routBEx,8);
+flowScheduler.add(routBEx,10);
 flowScheduler.add(setText,"A man (RED) is constructing a house (GREEN) on a beach resort (PURPLE) after attending a robotics club with some friends (BLUE)","ExB");
 flowScheduler.add(routText,"ExB");
 flowScheduler.add(routCbeg,3,"Ex");
@@ -238,7 +238,7 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(routA,1,1);
     flowScheduler.add(routAEnd)
     flowScheduler.add(routBbeg,1,j);
-    flowScheduler.add(routB,2,8);
+    flowScheduler.add(routB,2,10);
     flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first and second best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role.");
     flowScheduler.add(routText);
     flowScheduler.add(setText,"Please rank them as quickly and accurately as possible. You can always overwrite an assigned rank for a role by dragging a person from the right column to the ranking. Also, note that individuals can be ranked first or second only once.")
