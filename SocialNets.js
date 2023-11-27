@@ -1234,7 +1234,6 @@ async function routDbeg(trials){
     confidences = [];
     RTs = [];
     confRTs = [];
-    correct = [];
     trialT = 0;
     choice = 0;
     doingConf = false;
@@ -1368,6 +1367,9 @@ function routD(trials){
 
         // Kick user out of experiment if they take too long to reply
         let currTime = clock.getTime()
+        let keys = ready.getKeys({keyList:[], waitRelease:false});
+        _ready_allKeys = [].concat(keys);
+
         if (currTime - timeDec > 60){return quitPsychoJS("Kicked out for being idle for too long")};
         if (currTime - timeDec > 11){
             choice = correct[t]^1
@@ -1389,10 +1391,7 @@ function routD(trials){
             tFixation = clock.getTime();
             choice = 0;
             trialT += 1;
-        }
-        let keys = ready.getKeys({keyList:[], waitRelease:false});
-        _ready_allKeys = [].concat(keys);
-        if (_ready_allKeys.length > 0) {
+        }else if (_ready_allKeys.length > 0) {
             ready.keys = _ready_allKeys[_ready_allKeys.length - 1].name;  // just the last key pressed
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
