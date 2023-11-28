@@ -239,7 +239,7 @@ for (let j = 1; j < parties+1; j++){
     flowScheduler.add(routAEnd)
     flowScheduler.add(routBbeg,1,j);
     flowScheduler.add(routB,2,10);
-    flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first and second best for each role in " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role.");
+    flowScheduler.add(setText,"Based on the set of images you have just seen for each individual, please rank which individual would be the first and second best for each role in a " + TASKNAME[j-1] + ". To rank the individual for a role, you'll need to click the photo of an individual and drop them to the rank placeholder for the role.");
     flowScheduler.add(routText);
     flowScheduler.add(setText,"Please rank them as quickly and accurately as possible. You can always overwrite an assigned rank for a role by dragging a person from the right column to the ranking. Also, note that individuals can be ranked first or second only once.")
     flowScheduler.add(routText);
