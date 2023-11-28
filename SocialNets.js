@@ -721,7 +721,7 @@ function routB(iterations,trialtime){
         Location.autoDraw = false
         postselect = true;
         for (let j = 0; j < TextStims.length;j++){TextStims[j].autoDraw = false}
-        if (trialT > 2*trials*iterations){
+        if (trialT >= 2*trials*iterations){
             trialT = 0;
             return Scheduler.Event.NEXT;
         }else{
@@ -1262,7 +1262,6 @@ function routD(trials){
         psychoJS.experiment.addData("retrievalRT",RTs);
         psychoJS.experiment.addData("retrievalConfRT",confRTs);
         return Scheduler.Event.NEXT;
-
     }
 
     if(postselect){
@@ -1311,24 +1310,23 @@ function routD(trials){
         let oc = otherchoice[t];
         let bw = bwgroup[t];
         let c = 0;
-        let chooses = [];
-        let choose;
+        let foil;
         Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:sitays[p][e]}));
         if (oc == 0){
             if (bw == 1){
-                choose = Schooses[p][getRandInt(0,Schooses[p].length-1)];
+                foil = Schooses[p][getRandInt(0,Schooses[p].length-1)];
             }
-            else{choose = groupays[p][e^1]};
+            else{foil = groupays[p][e^1]};
             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:groupays[p][e]}));
-            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
+            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:foil}));
         }
         else if (oc == 1){
             if (bw == 1){
-                choose = Lchooses[p][getRandInt(0,Lchooses[p].length-1)];
+                foil = Lchooses[p][getRandInt(0,Lchooses[p].length-1)];
             }
-            else{choose = locays[p][e^1]};
+            else{foil = locays[p][e^1]};
             Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:locays[p][e]}));
-            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:choose}));
+            Stimuls.push(new visual.ImageStim({win:psychoJS.window,image:foil}));
         };
 
         for (let k = 1; k < Stimuls.length; k++){Stimuls[k].size = [.45, .45]};
@@ -1679,8 +1677,8 @@ function selfRank(parties){
     }
 }
 
-
 async function quitPsychoJS(message, isCompleted) {
+  util.addInfoFromUrl(expInfo);
   // Check for and save orphaned data
   psychoJS.experiment.addData("FinishedExperiment",isCompleted);
   if (psychoJS.experiment.isEntryEmpty()) {
