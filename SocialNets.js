@@ -27,7 +27,7 @@ const psychoJS = new PsychoJS({
 
 // open window:
 psychoJS.openWindow({
-  fullscr: false,
+  fullscr: true,
   color: new util.Color([0,0,0]),
   units: 'height',
   waitBlanking: true
@@ -376,14 +376,14 @@ async function routBbeg(time,nParty){
     let party = "party" + nParty;
     winPrevSize = psychoJS.window.size.map((s)=>s);
     Bim_positions = {0: [0, 0.3],
-                1: [0.6, -0.15],
+                1: [0.5, -0.15],
                 2: [-0.0, -0.15],
-                3: [-0.6, -0.15]};
+                3: [-0.5, -0.15]};
 
 
-    BLim_positions = {1: [0.6, -0.45],
+    BLim_positions = {1: [0.5, -0.45],
                 2: [-0.0, -0.45],
-                3: [-0.6, -0.45]};
+                3: [-0.5, -0.45]};
 	TextStims = []
     for (let i = 0; i < labels.length; i++){
         let t = labels[i];
@@ -443,14 +443,14 @@ var BPerson,BGroup,BLoc,BSit;
 async function routBExbeg(){
     winPrevSize = psychoJS.window.size.map((s)=>s);
     Bim_positions = {0: [0, 0.3],
-                1: [0.6, -0.15],
+                1: [0.5, -0.15],
                 2: [-0.0, -0.15],
-                3: [-0.6, -0.15]};
+                3: [-0.5, -0.15]};
 
 
-    BLim_positions = {1: [0.6, -0.45],
+    BLim_positions = {1: [0.5, -0.45],
                 2: [-0.0, -0.45],
-                3: [-0.6, -0.45]};
+                3: [-0.5, -0.45]};
 
 	TextStims = []
     for (let i = 0; i < labels.length; i++){
@@ -1565,7 +1565,7 @@ function selfRankBeg(){
     selfRankText.text += "\n If for any reason you need to reset your select, please press 'r'"
     selfRankText.autoDraw = true;
     rankDisp = []
-    rankDPos = [[-0.6,-0.35],[-0.3,-0.35],[0,-0.35],[0.3,-0.35],[0.6,-0.35]]
+    rankDPos = [[-0.5,-0.35],[-0.25,-0.35],[0,-0.35],[0.25,-0.35],[0.5,-0.35]]
     for(let i = 0; i < 5; i++){
         let temp = new visual.TextStim({win:psychoJS.window,text:tasksAll[0][i],pos:rankDPos[i], height:0.05, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'})
         temp.autoDraw = true;
