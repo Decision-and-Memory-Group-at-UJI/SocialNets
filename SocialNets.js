@@ -220,7 +220,7 @@ var tasksAll = [["DJ", "Desserts", "Barbecue", "Decorations", "Clean Up"],
             ["Contractor", "Architect", "Interior Decorations", "Landscaper", "Realtor"]];
 
 var parties = 2;
-flowScheduler.add(setText,"In this experiment, you will be presented 3 images comprising a location, group, and activity corresponding to an individual. Your job is to create a story given these paired images. This will be important for accurately assigning and ranking roles to an individual for a given task.");
+flowScheduler.add(setText,"In this experiment, you will be presented 3 images comprising a location, group, and activity corresponding to an individual. Your job is to create a story given these paired images. This will be important for accurately assigning and ranking roles to an individual for a given task.","Initial");
 flowScheduler.add(routText);
 flowScheduler.add(setText, "We will give you one example set of images in a Home Construction scenario to help you understand the experiment.");
 flowScheduler.add(routText);
@@ -270,11 +270,13 @@ var Ctim_positions = {}
 
 // tFixation is for controlling the fixation stimuli
 // tBegin is for controlling the triplet timing
+// tExpBegin is for controlling how long the experiment takes 
 // timeCF is for controlling the response time for confidence ratings
 // timeRank is for controlling the ranking response time
 // timeDec is for controlling the memory retrieval response time
 var tFixation;
 var tBegin;
+var tExpBegin;
 var timeCF;
 var timeRank;
 var timeDec;
@@ -1497,13 +1499,16 @@ function routDc(){
     return ret; 
 }
 
-function setText(fill){
+function setText(fill,arg){
     ready.clearEvents();
     instrText.text = fill + "\n Press any key to Continue";
     instrText.wrapwidth = 10;
     instrText.autoDraw = true;
     notReady = true
     winPrevSize = psychoJS.window.size;
+    if (typeof arg !== 'undefined' && arg == "Initial"){
+        tExpBegin = clock.getTime();
+    }
     return Scheduler.Event.NEXT;
 }
 async function routText(arg){
@@ -1681,6 +1686,7 @@ async function quitPsychoJS(message, isCompleted) {
   util.addInfoFromUrl(expInfo);
   // Check for and save orphaned data
   psychoJS.experiment.addData("FinishedExperiment",isCompleted);
+  psychoJS.experiment.addData("timeExpDuration",clock.getTime() - tExpBegin);
   if (psychoJS.experiment.isEntryEmpty()) {
     psychoJS.experiment.nextEntry();
   }
