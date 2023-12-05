@@ -45,6 +45,7 @@ psychoJS.schedule(psychoJS.gui.DlgFromDict({
   title: expName
 }));
 
+psychoJS.setRedirectUrls("https://app.prolific.com/submissions/complete?cc=C1FI454I","https://app.prolific.com/submissions/complete?cc=CBP4CKZG");
 
 psychoJS.start({
   expName: expName,
