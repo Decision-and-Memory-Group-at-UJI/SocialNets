@@ -45,12 +45,13 @@ psychoJS.schedule(psychoJS.gui.DlgFromDict({
   title: expName
 }));
 
-psychoJS.setRedirectUrls("https://app.prolific.com/submissions/complete?cc=C1FI454I","https://app.prolific.com/submissions/complete?cc=CBP4CKZG");
 
 psychoJS.start({
   expName: expName,
   expInfo: expInfo,
   resources: [
+    // completion codes
+    {'name': 'codes.json', 'path':'codes.json'},
     // resources:
     {'name': 'exampleStim/people/1.png', 'path': 'exampleStim/people/1.png'},
     {'name': 'exampleStim/socgroups/1/1.jpg', 'path': 'exampleStim/socgroups/1/1.jpg'},
@@ -1500,7 +1501,7 @@ function routDc(){
     return ret; 
 }
 
-function setText(fill,arg){
+async function setText(fill,arg){
     ready.clearEvents();
     instrText.text = fill + "\n Press any key to Continue";
     instrText.wrapwidth = 10;
@@ -1509,6 +1510,9 @@ function setText(fill,arg){
     winPrevSize = psychoJS.window.size;
     if (typeof arg !== 'undefined' && arg == "Initial"){
         tExpBegin = clock.getTime();
+        let codes = await fetch("./codes.json").then((response)=>response.json());
+        codes = codes['codes']
+        psychoJS.setRedirectUrls(codes['completion'],codes['cancellation']);
     }
     return Scheduler.Event.NEXT;
 }
