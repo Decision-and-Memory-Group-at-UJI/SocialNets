@@ -908,6 +908,8 @@ function routC(){
             if (ready.keys == 'escape'){return quitPsychoJS()};
             if (ready.keys == 'k'){running = false};
             if (ready.keys == 'r'){
+                linetKeys = {};
+                for (let i = 0; i < people.length; i++){linetKeys[i] = {}};
                 for (let i = 0; i < tasks.length; i++){
                     lineKeys[i] = {};
                     for (let j = 0; j < 2; j++){lines[i][j].autoDraw=false}
@@ -916,7 +918,11 @@ function routC(){
                 for (let i = 0; i< people.length; i++){linetKeys[i] = {}};
                 for (let i = 0; i < tasks.length; i++){
                     for (let j = 0; j < 2; j++){
-                        lines[i][j] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:[tStim[i].pos[0]+0.25+0.25*j,tStim[i].pos[1]],size:[0.1,0.1]});
+                        let jj = j;
+                        if (j == 1){
+                            jj += 1;
+                        }
+                        lines[i][j] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:[tStim[i].pos[0]+0.25+0.25*jj,tStim[i].pos[1]],size:[0.1,0.1]});
                         lines[i][j].autoDraw=true
                         linetKeys[i][j] = null;
                     };
@@ -954,21 +960,30 @@ function routC(){
         if (clines == 2*tasks.length){
             okroutRun = true;
             questStim.autoDraw = true;
+        }else{
+            okroutRun = false;
         }
 
         if (okroutRun){
             keys = routOK();
+            console.log("OK???",clines)
             if (keys == 'r'){
-                for (let i = 0; i < tasks.length; i++){
-                    lineKeys[i] = {};
-                    for (let j = 0; j < 2; j++){lines[i][j].autoDraw = false};
-                    lines[i] = {};
-                };
+                linetKeys = {};
                 for (let i = 0; i < people.length; i++){linetKeys[i] = {}};
                 for (let i = 0; i < tasks.length; i++){
+                    lineKeys[i] = {};
+                    for (let j = 0; j < 2; j++){lines[i][j].autoDraw=false}
+                    lines[i] = {};
+                };
+                for (let i = 0; i< people.length; i++){linetKeys[i] = {}};
+                for (let i = 0; i < tasks.length; i++){
                     for (let j = 0; j < 2; j++){
-                        lines[i][j] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:[tStim[i].pos[0]+0.25+0.25*j,tStim[i].pos[1]],size:[0.1,0.1]});
-                        lines[i][j].autoDraw = true;
+                        let jj = j;
+                        if (j == 1){
+                            jj += 1;
+                        }
+                        lines[i][j] = new visual.Rect({win:psychoJS.window, fillColor:'white',pos:[tStim[i].pos[0]+0.25+0.25*jj,tStim[i].pos[1]],size:[0.1,0.1]});
+                        lines[i][j].autoDraw=true
                         linetKeys[i][j] = null;
                     };
                 };
@@ -1081,6 +1096,7 @@ function routC(){
         questStim.autoDraw = false;
         return Scheduler.Event.NEXT;
     }
+    return Scheduler.Event.FLIP_REPEAT;
 };
 
 var textConf,slider;
