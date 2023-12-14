@@ -11,6 +11,9 @@ import statsmodels.genmod.bayes_mixed_glm as smgb
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import statsmodels.formula.api as smf
+import matplotlib
+matplotlib.use('agg')
+matplotlib.rcParams.update({"font.size":12})
 
 All = []
 AllAcc = []
@@ -22,8 +25,10 @@ cCoef = []
 PD = []
 planTime = []
 AllConf = []
+pDistsAll = []
 ExpTime = []
-for ii,part in enumerate(sorted(glob.glob("data/*.csv"))):
+predR = []
+for ii,part in enumerate(sorted(glob.glob("dataReplication1//*.csv"))):
     X = pd.read_csv(part)
     Runs = []
     RConf = []
@@ -32,7 +37,8 @@ for ii,part in enumerate(sorted(glob.glob("data/*.csv"))):
     cCoefR = []
     PDR = []
     rplanTime = []
-
+    rpDist = []
+    rPredR = []
     if len(json.loads(X.rankDec[0])['0']) != 2 or len(json.loads(X.rankDec[1])['0']) != 2:
         print(X.participant[1],X.rankDec)
         continue
@@ -67,11 +73,12 @@ for ii,part in enumerate(sorted(glob.glob("data/*.csv"))):
                            break
 #            print(firstChoice,secondChoice,ptSit[secondChoice[selfRank[ki]]],selfRank[ki])
             RunAcc +=[[np.array(firstChoice)==trueRank[k],np.array(secondChoice)==trueRank[k]]]            
+            rPredR += [[np.array(firstChoice),np.array(secondChoice)]]
             rplanTime += [X.rankRT[k]]
+            rpDist += [pDist]
             #print(X.participant[1],(X.rankconf[k]),X.rankRT[k])
         else:
             continue
-            
         corrChoice = np.array(json.loads(X.correctChoice[k]))
         choice = np.array(json.loads(X.Choice[k]))
         if len(choice) < 40:
@@ -102,10 +109,13 @@ for ii,part in enumerate(sorted(glob.glob("data/*.csv"))):
         Runs += [[wiGaSoc,wiGaLoc,bwGaSoc,bwGaLoc]]
         RConf += [[CwiGaSoc,CwiGaLoc,CbwGaSoc,CbwGaLoc]]
     PD += [PDR]
+    pDistsAll += [rpDist] 
     planTime += [rplanTime]
     cCoef += [cCoefR]
     RankConf += [RunRankConf]
     AllAcc += [RunAcc]
+    predR += [rPredR]
+
     All += [Runs]
     AllConf += [RConf]
 RankRet = []
@@ -132,7 +142,6 @@ for i in range(4):
     RankRet += [Runs]
 RankRet = np.array(RankRet).squeeze()
 toPlot = np.array(toPlot).squeeze()
-plt.ion()
 fig,ax = plt.subplots(2,2,figsize=(8,8))
 a = ax.ravel()
 labs = ["W/I Social", "W/I NonSocial", "B/W Social", "B/W NonSocial"]
@@ -162,7 +171,7 @@ plt.xticks([1,2],['Correct','Incorrect'])
 plt.title("T test {0:.3f}, p value {1:.3f}".format(*stats.ttest_ind(C[1][C[2]==1],C[1][C[2]!=1])))
 plt.ylabel("Confidence")
 plt.savefig("PerfConf")
-PDP = [[pd.DataFrame({"performance":PD[i][j][0].astype(int),"Confidence":PD[i][j][-2],"SelfDist":PD[i][j][-1],"rankConf":PD[i][j][-3],"Social":PD[i][j][1],"Episode":PD[i][j][2],"RT":PD[i][j][3],"Participant":PD[i][j][4],"Run":PD[i][j][5],"Ranking":(AllCompAcc[i,j].squeeze().repeat(40)),"FRanking":(AllFirst[i,j].squeeze().repeat(40)),"SRanking":(AllSecond[i,j].squeeze().repeat(40)),"Time":(np.arange(40))/40}) for j in range(2)] for i in range(len(PD)) if (AllCompAcc).squeeze().mean(1)[i] > 0.25 and All.mean((1,2))[i] > 0.6]
+PDP = [[pd.DataFrame({"performance":PD[i][j][0].astype(int),"Confidence":PD[i][j][-2],"SelfDist":PD[i][j][-1],"rankConf":PD[i][j][-3],"Social":PD[i][j][1],"Episode":PD[i][j][2],"RT":PD[i][j][3],"Participant":PD[i][j][4],"Run":PD[i][j][5],"Ranking":(AllCompAcc[i,j].squeeze().repeat(40)),"FRanking":(AllFirst[i,j].squeeze().repeat(40)),"SRanking":(AllSecond[i,j].squeeze().repeat(40)),"Time":(np.arange(40))/40}) for j in range(2)] for i in range(len(PD)) if (AllCompAcc).squeeze().mean(1)[i] > 0.2 and All.mean((1,2))[i] > 0.6]
 PDPCat = pd.concat([PDP[i][j] for i in range(len(PDP)) for j in range(2)],ignore_index=True)
 PDPCatCat = pd.concat([PDPCat,PDPCat],ignore_index=True)
 tempz = PDPCatCat["performance"].values
@@ -201,54 +210,31 @@ PDPCatCat['FRanking'] -= PDPCatCat['FRanking'].mean()
 PDPCatCat['SRanking'] -= PDPCatCat['SRanking'].mean()
 PDPCatCat['RankingCont'] -= PDPCatCat['RankingCont'].mean()
 
-modelN = Lmer('performance~   (1|Participant:Run)+ Episode+Social+Episode:Social',data=PDPCat,family='binomial')
-model = Lmer('performance~   (1|Participant:Run)+ Episode+Social+Episode:Social+ Ranking+  Ranking:(Episode+Social+Episode:Social)',data=PDPCat,family='binomial')
+model = Lmer('performance~   (1|Participant:Run)+ Episode+Social+Episode:Social',data=PDPCat,family='binomial')
 modelS = Lmer('performance~   (1|Participant:Run)+ Episode+Social+Episode:Social+ SelfDist+  SelfDist:(Episode+Social+Episode:Social)',data=PDPCat,family='binomial')
-model3 = Lmer('performance~   (1|Participant:Run)+ Episode+Social+Episode:Social+ WRank+  WRank:(Episode+Social+Episode:Social)',data=PDPCat,family='binomial')
+modelfS = Lmer('performance~   (1|Participant:Run)+ Episode+Social+Episode:Social+ SelfDist+FRanking+ SelfDist:(Episode+Social+Episode:Social) + FRanking:(Episode+Social+Episode:Social)',data=PDPCat,family='binomial')
 modelf = Lmer('performance~  (1|Participant:Run)+ Episode+Social+Episode:Social+FRanking+ FRanking:(Episode+Social+Episode:Social)',data=PDPCat,family='binomial')
-models = Lmer('performance~  (1|Participant:Run)+ Episode+Social+Episode:Social+SRanking+ SRanking:(Episode+Social+Episode:Social)',data=PDPCat,family='binomial')
-modelfs = Lmer('performance~ (1|Participant:Run)+ Episode+Social+Episode:Social+FRanking+ FRanking:(Episode+Social+Episode:Social)+SRanking+ SRanking:(Episode+Social+Episode:Social)',data=PDPCat,family='binomial')
-model2 = Lmer('performance~ (1|Participant:Run) + Episode+Social+Episode:Social+RankingCont+ RankingCont:(Episode+Social+Episode:Social)',data=PDPCat,family='binomial')
-Cmodel = Lmer('Confidence~ (1|Participant:Run) + Episode+Social+Episode:Social+Ranking+ Ranking:(Episode+Social+Episode:Social)',data=PDPCat,family='gaussian')
+Cmodel = Lmer('Confidence ~   (1|Participant:Run)+ Episode+Social+Episode:Social',data=PDPCat,family='gaussian')
 CmodelS = Lmer('Confidence~ (1|Participant:Run) + Episode+Social+Episode:Social+SelfDist+ SelfDist:(Episode+Social+Episode:Social)',data=PDPCat,family='gaussian')
 Cmodelf = Lmer('Confidence~ (1|Participant:Run) + Episode+Social+Episode:Social+FRanking+ FRanking:(Episode+Social+Episode:Social)',data=PDPCat,family='gaussian')
-Cmodels = Lmer('Confidence~ (1|Participant:Run) + Episode+Social+Episode:Social+SRanking+ SRanking:(Episode+Social+Episode:Social)',data=PDPCat,family='gaussian')
-Cmodelfs = Lmer('Confidence~ (1|Participant:Run) + Episode+Social+Episode:Social+FRanking+ FRanking:(Episode+Social+Episode:Social)+SRanking+ SRanking:(Episode+Social+Episode:Social)',data=PDPCat,family='gaussian')
-Cmodel2 = Lmer('Confidence~ (1|Participant:Run) + Episode+Social+Episode:Social+RankingCont+ RankingCont:(Episode+Social+Episode:Social)',data=PDPCat,family='gaussian')
-#CCmodel = Lmer('PerfConf~ (1|Participant:Run:PoC) + Episode+Social+Episode:Social+Ranking+ Ranking:(Episode+Social+Episode:Social)',data=PDPCatCat,family='gaussian')
-#CCmodelf = Lmer('PerfConf~ (1|Participant:Run:PoC) + Episode+Social+Episode:Social+FRanking+ FRanking:(Episode+Social+Episode:Social)',data=PDPCatCat,family='gaussian')
-#CCmodels = Lmer('PerfConf~ (1|Participant:Run:PoC) + Episode+Social+Episode:Social+SRanking+ SRanking:(Episode+Social+Episode:Social)',data=PDPCatCat,family='gaussian')
-#CCmodelfs = Lmer('PerfConf~ (1|Participant:Run:PoC) + Episode+Social+Episode:Social+FRanking+ FRanking:(Episode+Social+Episode:Social)+SRanking+ SRanking:(Episode+Social+Episode:Social)',data=PDPCatCat,family='gaussian')
-#CCmodel2 = Lmer('PerfConf~ (1|Participant:Run:PoC) + Episode+Social+Episode:Social+RankingCont+ RankingCont:(Episode+Social+Episode:Social)',data=PDPCatCat,family='gaussian')
+CmodelfS = Lmer('Confidence~   (1|Participant:Run)+ Episode+Social+Episode:Social+ SelfDist+FRanking+ SelfDist:(Episode+Social+Episode:Social) + FRanking:(Episode+Social+Episode:Social)',data=PDPCat,family='gaussian')
 
 fit = model.fit()
-fitN = modelN.fit()
+fitfS = modelfS.fit()
 fitS = modelS.fit()
 fitf = modelf.fit()
-fits = models.fit()
-fitfs = modelfs.fit()
-fit2 = model2.fit()
-fit3 = model3.fit()
 Cfit = Cmodel.fit()
 CfitS = CmodelS.fit()
 Cfitf = Cmodelf.fit()
-Cfits = Cmodels.fit()
-Cfitfs = Cmodelfs.fit()
-Cfit2 = Cmodel2.fit()
-#CCfit = CCmodel.fit()
-#CCfitf = CCmodelf.fit()
-#CCfits = CCmodels.fit()
-#CCfitfs = CCmodelfs.fit()
-#CCfit2 = CCmodel2.fit()
+CfitfS = CmodelfS.fit()
 
-print(lrt([modelN,model,modelf,models,modelfs,model2,model3,modelS]))
-print(lrt([Cmodel,Cmodelf,Cmodels,Cmodelfs,Cmodel2,CmodelS]))
-#print(lrt([CCmodel,CCmodelf,CCmodels,CCmodelfs,CCmodel2]))
+print(lrt([model,modelf,modelS]))
+print(lrt([Cmodel,Cmodelf,CmodelS]))
 
 plt.close('all')
 plt.figure(figsize=[10,8])
-plt.plot(fit['Estimate'].values, fit['Estimate'].keys(),"*")
-for key,up,low in zip(fit['Estimate'].keys(), fit["2.5_ci"].values, fit["97.5_ci"].values):
+plt.plot(fitf['Estimate'].values, fitf['Estimate'].keys(),"*")
+for key,up,low in zip(fitf['Estimate'].keys(), fitf["2.5_ci"].values, fitf["97.5_ci"].values):
     plt.plot([low,up],[key,key])
 plt.axvline(0,color='red')
 plt.xlabel("Coeff Value")
@@ -263,8 +249,8 @@ plt.xlabel("Coeff Value")
 plt.tight_layout()
 plt.savefig("LMEFitDist")
 plt.figure(figsize=[10,8])
-plt.plot(Cfit['Estimate'].values, Cfit['Estimate'].keys(),"*")
-for key,up,low in zip(Cfit['Estimate'].keys(), Cfit["2.5_ci"].values, Cfit["97.5_ci"].values):
+plt.plot(Cfitf['Estimate'].values, Cfitf['Estimate'].keys(),"*")
+for key,up,low in zip(Cfitf['Estimate'].keys(), Cfitf["2.5_ci"].values, Cfitf["97.5_ci"].values):
     plt.plot([low,up],[key,key])
 plt.axvline(0,color='red')
 plt.xlabel("Coeff Value")
@@ -272,22 +258,28 @@ plt.tight_layout()
 plt.savefig("CLMEFit")
 
 print(fit)
+print(fitf)
 print(Cfit)
+print(Cfitf)
 print(fitS)
-model.data['EpisodeSocial'] = list(map(lambda a,b: a+":"+b,model.data['Episode'],model.data['Social']))
-Cmodel.data['EpisodeSocial'] = list(map(lambda a,b: a+":"+b,Cmodel.data['Episode'],Cmodel.data['Social']))
+modelf.data['EpisodeSocial'] = list(map(lambda a,b: a+":"+b,modelf.data['Episode'],modelf.data['Social']))
+Cmodelf.data['EpisodeSocial'] = list(map(lambda a,b: a+":"+b,Cmodelf.data['Episode'],Cmodelf.data['Social']))
 modelS.data['EpisodeSocial'] = list(map(lambda a,b: a+":"+b,modelS.data['Episode'],modelS.data['Social']))
-model.data['Ranking'] = invtransform(model.data['Ranking']+PDPRm)
+modelfS.data['EpisodeSocial'] = list(map(lambda a,b: a+":"+b,modelfS.data['Episode'],modelfS.data['Social']))
+modelf.data['Ranking'] = invtransform(modelf.data['Ranking']+PDPRm)
+modelf.data['FRanking'] = invtransform(modelf.data['FRanking']+fPDPRm)
+modelfS.data['FRanking'] = invtransform(modelfS.data['FRanking']+fPDPRm)
+Cmodelf.data['FRanking'] = invtransform(Cmodelf.data['FRanking']+fPDPRm)
 modelS.data['SelfDist'] = invtransform(modelS.data['SelfDist']+PDPSm)
-model.data['logfits'] = np.log(model.data['fits'])
+modelfS.data['SelfDist'] = invtransform(modelfS.data['SelfDist']+PDPSm)
+modelf.data['logfits'] = np.log(modelf.data['fits'])
 modelS.data['logfits'] = np.log(modelS.data['fits'])
 
-g = sns.lmplot(x='Ranking',y='fits',hue='EpisodeSocial',data=model.data,hue_order=sorted(model.data['EpisodeSocial'].unique()))#,col='Participant',col_wrap=3,capsize=.2, errorbar="se",kind="point", height=6, aspect=.75)
+g = sns.lmplot(x='FRanking',y='fits',hue='EpisodeSocial',data=modelfS.data,hue_order=sorted(modelfS.data['EpisodeSocial'].unique()))#,col='Participant',col_wrap=3,capsize=.2, errorbar="se",kind="point", height=6, aspect=.75)
 plt.savefig("LMEAnovaPlot")
-g = sns.lmplot(x='SelfDist',y='fits',hue='EpisodeSocial',data=modelS.data,hue_order=sorted(model.data['EpisodeSocial'].unique()))#,col='Participant',col_wrap=3,capsize=.2, errorbar="se",kind="point", height=6, aspect=.75)
+g = sns.lmplot(x='SelfDist',y='fits',hue='EpisodeSocial',data=modelfS.data,hue_order=sorted(modelfS.data['EpisodeSocial'].unique()))#,col='Participant',col_wrap=3,capsize=.2, errorbar="se",kind="point", height=6, aspect=.75)
 plt.savefig("LMEDistAnovaPlot")
-Cmodel.data['Ranking'] += AllCompAcc.mean()
-g = sns.lmplot(x='Ranking',y='fits',hue='EpisodeSocial',data=Cmodel.data,hue_order=sorted(model.data['EpisodeSocial'].unique()))#,col='Participant',col_wrap=3,capsize=.2, errorbar="se",kind="point", height=6, aspect=.75)
+g = sns.lmplot(x='FRanking',y='fits',hue='EpisodeSocial',data=Cmodelf.data,hue_order=sorted(modelf.data['EpisodeSocial'].unique()))#,col='Participant',col_wrap=3,capsize=.2, errorbar="se",kind="point", height=6, aspect=.75)
 plt.savefig("CLMEAnovaPlot")
 
 from scipy.interpolate import make_interp_spline
@@ -295,9 +287,9 @@ from scipy.interpolate import make_interp_spline
 plt.figure()
 for e in ["Within","Between"]:
  for s in ["Social", "NonSocial"]:
-  fpr,tpr,_=roc_curve(model.data.performance[np.logical_and(model.data.Episode==e,model.data.Social==s)], model.data.fits[ np.logical_and(model.data.Episode==e,model.data.Social==s)])
+  fpr,tpr,_=roc_curve(modelf.data.performance[np.logical_and(modelf.data.Episode==e,modelf.data.Social==s)], modelf.data.fits[ np.logical_and(modelf.data.Episode==e,modelf.data.Social==s)])
   dpr = pd.DataFrame({"fpr":fpr,"tpr":tpr}).groupby("fpr").mean().reset_index() 
-  plt.plot(fpr,tpr,label="{0}:{1}, AUC:{2:0.3f}".format(e,s,roc_auc_score(model.data.performance[np.logical_and(model.data.Episode==e,model.data.Social==s)], model.data.fits[ np.logical_and(model.data.Episode==e,model.data.Social==s)])))
+  plt.plot(fpr,tpr,label="{0}:{1}, AUC:{2:0.3f}".format(e,s,roc_auc_score(modelf.data.performance[np.logical_and(modelf.data.Episode==e,modelf.data.Social==s)], modelf.data.fits[ np.logical_and(modelf.data.Episode==e,modelf.data.Social==s)])))
 plt.plot([0,1],[0,1],label="Random")
 plt.xlabel("FPR")
 plt.ylabel("TPR")
