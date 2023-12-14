@@ -233,7 +233,7 @@ flowScheduler.add(routText,"ExB");
 flowScheduler.add(routCbeg,3,"Ex");
 flowScheduler.add(setText, "Given a Home Construction scenario, this man will be ranked first for the role of contractor, and second for the role of architect.\n  You will also rank the other individuals using the stories you create with their activity, location, and group images.")
 flowScheduler.add(routText,"ExC");
-for (let j = 1; j < parties+1; j++){
+for (let j = parties; j != 0; j--){
     flowScheduler.add(setText,"You'll now view sets of 3 images comprising locations, groups and activities corresponding to an individual. When viewing the 3 images, please imagine the listed person performing the given activity in the displayed location with the presented group of people. Please try to remember these events that you imagine. You will later need to accurately assign specific roles to the individuals seen for a " + TASKNAME[j-1] + ".");
     flowScheduler.add(routText);
     flowScheduler.add(routAbeg)
