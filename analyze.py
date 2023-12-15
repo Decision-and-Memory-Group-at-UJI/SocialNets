@@ -28,7 +28,7 @@ AllConf = []
 pDistsAll = []
 ExpTime = []
 predR = []
-for ii,part in enumerate(sorted(glob.glob("dataReplication1//*.csv"))):
+for ii,part in enumerate(sorted(glob.glob("data/*.csv"))):
     X = pd.read_csv(part)
     Runs = []
     RConf = []
