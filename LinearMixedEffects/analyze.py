@@ -115,7 +115,7 @@ def analyze(ii,part,trueRank):
         Runs += [[wiGaSoc,wiGaLoc,bwGaSoc,bwGaLoc]]
         RConf += [[CwiGaSoc,CwiGaLoc,CbwGaSoc,CbwGaLoc]]
     return PDR,rpDist,rplanTime,RunRankConf,RunAcc,rPredR,Runs,RConf,ExpTime,ptSits,toSave
-for ii,part in enumerate(list(sorted(glob.glob("data/*.csv")))):
+for ii,part in enumerate(list(sorted(glob.glob("../data/*.csv")))):
     X = pd.read_csv(part)
     if len(json.loads(X.rankDec[0])['0']) != 2 or len(json.loads(X.rankDec[1])['0']) != 2:
         continue
@@ -161,8 +161,8 @@ AllConf = []# [RConf]
 toSave = []
 ptSits = []
 
-for ii,part in enumerate(list(sorted(glob.glob("dataRe*/*.csv")))):
-    ii = ii + len(list(glob.glob("dataRe*/*.csv")))
+for ii,part in enumerate(list(sorted(glob.glob("../dataRe*/*.csv")))):
+    ii = ii + len(list(glob.glob("../dataRe*/*.csv")))
     X = pd.read_csv(part)
     if len(json.loads(X.rankDec[0])['0']) != 2 or len(json.loads(X.rankDec[1])['0']) != 2:
         continue
