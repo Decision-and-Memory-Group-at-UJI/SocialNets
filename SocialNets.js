@@ -51,7 +51,7 @@ psychoJS.start({
   expInfo: expInfo,
   resources: [
     // completion codes
-    {'name': 'codes.json', 'path':'codes.json'},
+    {'name': 'codesSoc.json', 'path':'codesSoc.json'},
     // resources:
     {'name': 'exampleStim/people/1.png', 'path': 'exampleStim/people/1.png'},
     {'name': 'exampleStim/socgroups/1/1.jpg', 'path': 'exampleStim/socgroups/1/1.jpg'},
@@ -1526,7 +1526,7 @@ async function setText(fill,arg){
     winPrevSize = psychoJS.window.size;
     if (typeof arg !== 'undefined' && arg == "Initial"){
         tExpBegin = clock.getTime();
-        let codes = await fetch("./codes.json").then((response)=>response.json());
+        let codes = await fetch("./codesSoc.json").then((response)=>response.json());
         codes = codes['codes']
         psychoJS.setRedirectUrls(codes['completion'],codes['cancellation']);
     }

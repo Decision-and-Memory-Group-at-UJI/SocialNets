@@ -51,7 +51,7 @@ psychoJS.start({
   expInfo: expInfo,
   resources: [
     // completion codes
-    {'name': 'codes.json', 'path':'codes.json'},
+    {'name': 'codesNonSoc.json', 'path':'codesNonSoc.json'},
     // resources:
     {'name': 'exampleStim/people/1.png', 'path': 'exampleStim/people/1.png'},
     {'name': 'exampleStim/object/1.png', 'path': 'exampleStim/object/1.png'},
@@ -239,7 +239,7 @@ var tasksAll = [["DJ", "Desserts", "Barbecue", "Decorations", "Clean Up"],
 
 var parties = 2;
 //flowScheduler.add(setText,"In this experiment, you will be presented 3 images comprising a location, group, and activity corresponding to an individual. Your job is to create a story given these paired images. This will be important for accurately assigning and ranking roles to an individual for a given task.","Initial");
-flowScheduler.add(setText,"In this experiment, you will be presented 3 images comprising a location, group, and activity corresponding to an object. Your job is to create a story given these paired images. This will be important for accurately assigning and ranking the possible purpose of each object presented.","Initial");
+flowScheduler.add(setText,"In this experiment, you will be presented 3 images comprising a location, group, and activity corresponding to an object. You will be creating stories given these paired images. This will be important for accurately assigning and ranking the possible purpose of each object presented.","Initial");
 flowScheduler.add(routText);
 flowScheduler.add(setText, "We will give you one example set of images to help you understand how to construct stories for this experiment.");
 flowScheduler.add(routText);
@@ -1195,6 +1195,8 @@ async function routDbeg(trials){
     let P4ch = shuffler(filtArr.filter((p) => pind[p] == 3));
     let P5ch = shuffler(filtArr.filter((p) => pind[p] == 4));
 
+
+	// Which cue
     for(let i = 0; i < P1ch.length/2; i++){
         otherchoice[P1ch[i]] = 1;
         otherchoice[P2ch[i]] = 1;
@@ -1213,6 +1215,7 @@ async function routDbeg(trials){
     let P5och = P5ch.filter((i) => otherchoice[i] == 1);
     let P5noch = P5ch.filter((i) => otherchoice[i] == 0);
 
+	// Between or Within? 
     for(let i = 0; i < P1och.length/2;  i++){
         bwgroup[P1och[i]] = 1;
         bwgroup[P1noch[i]] = 1;
@@ -1248,7 +1251,7 @@ async function routDbeg(trials){
     let P5eooch = P5och.filter((i) => bwgroup[i]  == 0);
     let P5eonoch = P5noch.filter((i) => bwgroup[i]  == 0);
 
-
+	// Which episode?
     for(let i = 0; i < P1eioch.length/2;  i++){
         eind[P1eioch[i]] = 1;eind[P1einoch[i]] = 1;eind[P2eioch[i]] = 1;eind[P2einoch[i]] = 1;eind[P3eioch[i]] = 1;
         eind[P3einoch[i]] = 1;eind[P4eioch[i]] = 1;eind[P4einoch[i]] = 1;eind[P5eioch[i]] = 1;eind[P5einoch[i]] = 1;
@@ -1547,7 +1550,7 @@ async function setText(fill,arg){
     winPrevSize = psychoJS.window.size;
     if (typeof arg !== 'undefined' && arg == "Initial"){
         tExpBegin = clock.getTime();
-        let codes = await fetch("./codes.json").then((response)=>response.json());
+        let codes = await fetch("./codesNonSoc.json").then((response)=>response.json());
         codes = codes['codes']
         psychoJS.setRedirectUrls(codes['completion'],codes['cancellation']);
     }
