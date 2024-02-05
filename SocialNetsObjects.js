@@ -581,25 +581,6 @@ function routBEx(trialtime){
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
             if (ready.keys == "escape"){return quitPsychoJS()}
-            if(ready.keys == "k"){
-                selected = false;
-		        SocialSit.opacity /= 4
-				Person.opacity = 1;
-		        Person.opacity /= 4
-		        SocialGroup.opacity /= 4
-		        Location.opacity/= 4
-                BSit.autoDraw = true;
-                BPerson.autoDraw = true;
-                BGroup.autoDraw = true;
-                BLoc.autoDraw = true;
-		        BSit.opacity /= 3.5
-		        BPerson.opacity /= 3.5
-		        BGroup.opacity /= 3.5
-		        BLoc.opacity/= 3.5
-
-		        for (let j = 0; j < TextStims.length;j++){TextStims[j].opacity /= 4}
-
-                return Scheduler.Event.NEXT}
         }
         frames += 1;
         return Scheduler.Event.FLIP_REPEAT;
@@ -724,14 +705,6 @@ function routB(iterations,trialtime){
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
             if (ready.keys == "escape"){return quitPsychoJS()}
-            if(ready.keys == "k"){
-                selected = false;
-                SocialSit.autoDraw = false
-                Person.autoDraw = false
-                SocialGroup.autoDraw = false
-                Location.autoDraw = false
-                for (let j = 0; j < TextStims.length; j++){TextStims[j].autoDraw = false};
-                return Scheduler.Event.NEXT}
         }
         frames += 1;
         return Scheduler.Event.FLIP_REPEAT;
@@ -756,8 +729,7 @@ function routB(iterations,trialtime){
 };
 
 
-function routOK(){
-    let keys = ready.getKeys({keyList:[], waitRelease:false});
+function routOK(keys){
     _ready_allKeys = [].concat(keys);
     let ret = null;
     if (_ready_allKeys.length > 0) {
@@ -922,12 +894,11 @@ function routC(){
                 }
             }
         }
-        if (_ready_allKeys.length > 0) {
+        if (_ready_allKeys.length > 0 && !okroutRun) {
             ready.keys = _ready_allKeys[_ready_allKeys.length - 1].name;  // just the last key pressed
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
             if (ready.keys == 'escape'){return quitPsychoJS()};
-            if (ready.keys == 'k'){running = false};
             if (ready.keys == 'r'){
                 linetKeys = {};
                 for (let i = 0; i < people.length; i++){linetKeys[i] = {}};
@@ -986,8 +957,8 @@ function routC(){
         }
 
         if (okroutRun){
-            keys = routOK();
-            console.log("OK???",clines)
+            keys = routOK(keys);
+            console.log("OK???",clines,keys)
             if (keys == 'r'){
                 linetKeys = {};
                 for (let i = 0; i < people.length; i++){linetKeys[i] = {}};
@@ -1438,12 +1409,6 @@ function routD(trials){
             ready.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
             ready.duration = _ready_allKeys[_ready_allKeys.length - 1].duration;
             if (ready.keys == 'escape'){return quitPsychoJS()};
-            if (ready.keys == 'k'){
-                Stimuls[0].autoDraw = false;
-                Stimuls[1].autoDraw = false;
-                Stimuls[2].autoDraw = false;
-                return Scheduler.Event.NEXT;
-            };
             if (ready.keys == 'left'){
                 choice = -1;
                 let RT = clock.getTime() - timeDec;
@@ -1617,7 +1582,7 @@ function selfRankBeg(){
     rankDisp = []
     rankDPos = [[-0.5,-0.35],[-0.25,-0.35],[0,-0.35],[0.25,-0.35],[0.5,-0.35]]
     for(let i = 0; i < 5; i++){
-        let temp = new visual.TextStim({win:psychoJS.window,text:tasksAll[0][i],pos:rankDPos[i], height:0.05, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'})
+        let temp = new visual.TextStim({win:psychoJS.window,text:tasksAll[0][i],pos:rankDPos[i], height:0.04, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'})
         temp.autoDraw = true;
         rankDisp.push(temp);
     }
@@ -1696,7 +1661,10 @@ function selfRank(parties){
          }
          return Scheduler.Event.FLIP_REPEAT;
     }else{
-        let ret = routOK();
+         let keys = ready.getKeys({keyList:[], waitRelease:false});
+         _ready_allKeys = [].concat(keys);
+
+        let ret = routOK(keys);
         if (ret == 'k'){
             questStim.autoDraw = false;
             selfRankRT.push(clock.getTime() - tSelfRank);
@@ -1710,7 +1678,7 @@ function selfRank(parties){
                 selfRankText.text = "Which of the following roles would you place yourself in? Click on the labels below to select your role. The text will highlight GREEN for your first choice, and BLUE for your second choice"
                 selfRankText.text += "\n If for any reason you need to reset your selection, please press 'r'"
                 for(let i = 0; i < 5; i++){
-                    let temp = new visual.TextStim({win:psychoJS.window,text:tasksAll[trialT][i],pos:rankDPos[i], height:0.05, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'})
+                    let temp = new visual.TextStim({win:psychoJS.window,text:tasksAll[trialT][i],pos:rankDPos[i], height:0.04, wrapWidth:null, ori:0, color:'white', colorSpace:'rgb', opacity:1, languageStyle:'LTR', depth:0.0,font:'Arial', units:'height'})
                     temp.autoDraw = true;
                     rankDisp.push(temp);
                 }
