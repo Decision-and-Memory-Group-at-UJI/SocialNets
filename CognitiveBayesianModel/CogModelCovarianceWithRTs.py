@@ -35,7 +35,6 @@ def PosteriorFit(ChoiceRes,Rank):
                 else:
                     RConf[j][k].append(Confidence[i,j][Episode[i,j]==k-2].mean())
 
-    softplus = lambda x: jnp.log(1+jnp.exp(x))
     invlogit = lambda x: 1/(1+jnp.exp(-x))
     CoVoo = lambda x: invlogit(x)
     logdCoVoo = lambda x: invlogit(x)*(1-invlogit(x))
@@ -89,15 +88,12 @@ def PosteriorFit(ChoiceRes,Rank):
         a,b,c,d = M.ravel()
         detM = a*d - b*c
         return jnp.array([[d,-b],[-c,a]])/detM
-
     def det22(M):
         a,b,c,d = M.ravel()
         detM = a*d - b*c
         return detM
-
     def KL(A,B,BP):
         return .5*(jnp.log(det22(B)) - jnp.log(det22(A)) -2 +jnp.diag(BP@A).sum())
-
     noisepostmuup = (jax.vmap(jax.vmap(jax.vmap(lambda a,b,c: fastinv(a+b)@c,in_axes=[None,-1,None],out_axes=-1))))
     noisepostvarup = (jax.vmap(jax.vmap(jax.vmap(lambda a,b: a+b,in_axes=[None,-1],out_axes=-1))))
     numpostmu = (jax.vmap(jax.vmap(jax.vmap(lambda a,b,c: a+b*c,in_axes=[None,None,-1],out_axes=-1))))
@@ -114,6 +110,7 @@ def PosteriorFit(ChoiceRes,Rank):
     npitemselect = (jax.vmap(jax.vmap(jax.vmap(lambda SS,A,B: SS[A,B],in_axes=[None,0,0]))))
     RTmed = jnp.median(RT[...,None],-2,keepdims=True)
     def Model( 
+            biasPS,biasS,
             weightPS,weightS,
             tNDPS,tNDS,
             axSocialPS,axSocialS,
@@ -132,7 +129,7 @@ def PosteriorFit(ChoiceRes,Rank):
 
         oldcritPS = logdCoV(critPS)
         critPS = CoV(critPS)
-        logcritPS = (oldcritPS + jstats.gamma.logpdf(critPS,3,scale=5)).sum()
+        logcritPS = (oldcritPS + jstats.gamma.logpdf(critPS,1,scale=5)).sum()
         logP += [logcritPS]
 
         logcritS = (jstats.norm.logpdf(critS)).sum()
@@ -141,7 +138,7 @@ def PosteriorFit(ChoiceRes,Rank):
 
         oldmucritPS = logdCoV(mucritPS)
         mucritPS = CoV(mucritPS)
-        logmucritPS = (oldmucritPS + jstats.gamma.logpdf(mucritPS,3,scale=5)).sum()
+        logmucritPS = (oldmucritPS + jstats.gamma.logpdf(mucritPS,1,scale=5)).sum()
         logP += [logmucritPS]
 
         logmucritS = (jstats.norm.logpdf(mucritS)).sum()
@@ -150,7 +147,7 @@ def PosteriorFit(ChoiceRes,Rank):
 
         oldVarCritPS = logdCoV(VarCritPS)
         VarCritPS = CoV(VarCritPS)
-        logVarCritPS = (oldVarCritPS + jstats.gamma.logpdf(VarCritPS,3,scale=5)).sum()
+        logVarCritPS = (oldVarCritPS + jstats.gamma.logpdf(VarCritPS,1,scale=5)).sum()
         logP += [logVarCritPS]
         VarCritPM = VarCritPS[...,0]
         VarCritPS = VarCritPS[...,1]
@@ -164,17 +161,26 @@ def PosteriorFit(ChoiceRes,Rank):
 
         oldweightPS = logdCoV(weightPS)
         weightPS = CoV(weightPS)
-        logweightPS = (oldweightPS + jstats.gamma.logpdf(weightPS,3,scale=5)).sum()
+        logweightPS = (oldweightPS + jstats.gamma.logpdf(weightPS,1,scale=5)).sum()
         logP += [logweightPS]
 
         oldweightS =logdCoV(weightS)
         weightS = CoV(weightS)
-        logweightS = (oldweightS + jstats.gamma.logpdf(weightS,3,scale=weightPS)).sum()
+        logweightS = (oldweightS + jstats.gamma.logpdf(weightS,1,scale=weightPS)).sum()
         logP += [logweightS]
+
+        oldbiasPS = logdCoV(biasPS)
+        biasPS = CoV(biasPS)
+        logbiasPS = (oldbiasPS + jstats.gamma.logpdf(biasPS,1,scale=5)).sum()
+        logP += [logbiasPS]
+
+        logbiasS = (jstats.norm.logpdf(biasS)).sum()
+        biasS = biasS*biasPS
+        logP += [logbiasS]
 
         oldtNDPS = logdCoV(tNDPS)
         tNDPS = CoV(tNDPS)
-        logtNDPS = (oldtNDPS + jstats.gamma.logpdf(tNDPS,3,scale=5)).sum()
+        logtNDPS = (oldtNDPS + jstats.gamma.logpdf(tNDPS,1,scale=5)).sum()
         logP += [logtNDPS]
         tNDPM = tNDPS[...,0]
         tNDPS = tNDPS[...,1]
@@ -185,7 +191,7 @@ def PosteriorFit(ChoiceRes,Rank):
         logtNDS = (oldtNDS + jstats.beta.logpdf(tNDS,tNDPM,tNDPS)).sum()
         logP += [logtNDS]
 
-        tT = jax.vmap(jax.vmap(jax.vmap(lambda a,b: a[b],in_axes=[None,-1])))(tNDS,Social)#npitemselect(tNDS,Social,Episode)
+        tT = tNDS
         wT = weightS
         TD = RT[...,None] - tT*RTmed
 
@@ -343,14 +349,16 @@ def PosteriorFit(ChoiceRes,Rank):
         APcriterionS = jstats.norm.cdf((mucritS[...,None,None]-postMu[...,[2],:,:])/postVar[...,[2],:,:])
         PcriterionS = PcriterionS*APcriterionS
 
-        # partial interactions between stimuli at recall
-        corrs = jax.vmap(jax.vmap(jax.vmap(lambda a,b: (a*b),in_axes=[-2,None])))(TD,wT).squeeze()
-        logcorrs = jstats.norm.logpdf(corrs.mean((0,1,-2))).sum()
+        # Get what stimuli-attribute pairings were presented at each trial
+        corrs = jax.vmap(jax.vmap(jax.vmap(lambda a,b,c,d: (a*b[d]+c[d]),in_axes=[-2,None,None,-1])))(TD,wT,biasS,Episode).squeeze()
+        SC = jnp.sqrt(jnp.sum(corrs[:,:,:,[0,1]]**2,-1)).mean()
+        NSC = jnp.sqrt(jnp.sum(corrs[:,:,:,[2,3]]**2,-1)).mean()
+        logcorrs = jstats.norm.logpdf(SC-NSC,scale=4).sum()
         logP += [logcorrs]
+
         corrs = CoVul(corrs,-1,1)
 
         biasL = jax.vmap(jax.vmap(jax.vmap(lambda a,b: makeCov2(a,b),in_axes=[None,-2],out_axes=-1)))(VarCritS.repeat(3,axis=-1),corrs) 
-        # Normalization of weights (partial interactions)
         biasL = biasL/jnp.sqrt((biasL**2).sum(-2,keepdims=True))
 
         bias = jax.vmap(jax.vmap(jax.vmap(lambda z,L: L@z.squeeze(),in_axes=[None,-1],out_axes=-1)))(critS,biasL).squeeze() 
@@ -360,16 +368,13 @@ def PosteriorFit(ChoiceRes,Rank):
         postVarT = itemselect(postVar,Social,Episode,Person)
         ApostMuT =  npitemselect(postMu[...,2,:,:],Episode,Person)
         ApostVarT = npitemselect(postVar[...,2,:,:],Episode,Person)
-
         corrP= jstats.norm.cdf( (mucritS + Sbias - postMuT)/(postVarT))
         AcorrP= jstats.norm.cdf((mucritS + Abias - ApostMuT)/(ApostVarT))
         corrP = corrP*AcorrP
-
         # bernoulli describes choice observation at a trial
         logchoiceS = jstats.bernoulli.logpmf(correct,corrP).sum()
         logP += [logchoiceS]
-
-        return [corrP,PcriterionS,postMu,postVar,SpostMu,jnp.sqrt(SpostVar),NpostMu,jnp.sqrt(NpostVar)],(jnp.array(logP)).sum()
+        return [corrP,PcriterionS,postMu,postVar,SpostMu,jnp.sqrt(SpostVar),NpostMu,jnp.sqrt(NpostVar),postMuT,postVarT],(jnp.array(logP)).sum()
 
 	        
     def inference_loop(kernel, num_samples, rng_key, initial_state,chainNo):
@@ -392,41 +397,37 @@ def PosteriorFit(ChoiceRes,Rank):
         keys = keys[1:]
     
         initial_position = {
-            # Recall partial interaction weights
-            "weightPS":(jax.random.normal(keys[2],shape=(1,1,1,6,))*0.1+0),
-            "weightS":(jax.random.normal(keys[3],shape=(correct.shape[0],2,1,6,))*0.1+0),
-            # Marginal recall variance
-            "VarCritPS":(jax.random.normal(keys[22],shape=(1,1,1,2,))*0.1+0),
-            "VarCritS":(jax.random.normal(keys[21],shape=(correct.shape[0],2,1,))*0.1+0),
-            # Baseline recall bias
-            "mucritPS":(jax.random.normal(keys[24],shape=(1,1,1,))*0.1+0),
-            "mucritS":(jax.random.normal(keys[25],shape=(correct.shape[0],2,1,))*0.1+0),
-            # Biases for particular stimuli at recall
-            "critPS":(jax.random.normal(keys[24],shape=(1,1,3,))*0.1+0),
-            "critS":(jax.random.normal(keys[25],shape=(correct.shape[0],2,3,))*0.1+0),
-            # Non decision time
-            "tNDPS":(jax.random.normal(keys[4],shape=(1,1,2,1,2,))*0.1+0),
-            "tNDS":(jax.random.normal(keys[5],shape=(correct.shape[0],2,2,1,))*0.1+0),
-            # Direction of encoding
+            "biasPS":(jax.random.normal(keys[0],shape=(1,1,2,6,))*0.1+0),
+            "biasS":(jax.random.normal(keys[1],shape=(correct.shape[0],2,2,6,))*0.1+0),
+            "weightPS":(jax.random.normal(keys[2],shape=(1,1,2,6,))*0.1+0),
+            "weightS":(jax.random.normal(keys[3],shape=(correct.shape[0],2,2,6,))*0.1+0),
+            "tNDPS":(jax.random.normal(keys[4],shape=(1,1,1,1,2,))*0.1+0),
+            "tNDS":(jax.random.normal(keys[5],shape=(correct.shape[0],2,1,1,))*0.1+0),
             "axSocialPS":(jax.random.normal(keys[6],shape=(1,1,1,))*0.1+0),
             "axSocialS":(jax.random.normal(keys[7],shape=(1,2,1,))*0.1+0),
             "axNonSocialPS":(jax.random.normal(keys[8],shape=(1,1,1,))*0.1+0),
             "axNonSocialS":(jax.random.normal(keys[9],shape=(1,2,1,))*0.1+0),
             "axActPS":(jax.random.normal(keys[10],shape=(1,1,1,))*0.1+0),
             "axActS":(jax.random.normal(keys[11],shape=(1,2,1,))*0.1+0),
-            # Baseline encoding
+            # Cue Distribution
             "sigBLPS":(jax.random.normal(keys[12],shape=(1,1,1,1,2,))*0.1+0),
             "sigBLS":(jax.random.normal(keys[13],shape=(correct.shape[0],2,1,1,2,))*0.1+0),
-            # Signal interactions between encoded stimuli
+            # Signal Distribution
             "VarWIPM":(jax.random.normal(keys[14],shape=(1,1,3,5,))*0.1+0),
             "VarWIS":(jax.random.normal(keys[15],shape=(correct.shape[0],2,3,5,))*0.1+0),
             "CovWIPS":(jax.random.normal(keys[16],shape=(1,1,3,2,))*0.1+0),
             "CovWIS":(jax.random.normal(keys[17],shape=(correct.shape[0],2,3,))*0.1+0),
-            # Noise interactions between encoded stimuli
+            # Noise Distribution
             "VarBWPM":(jax.random.normal(keys[18],shape=(1,1,3,5,))*0.1+0),
             "VarBWS":(jax.random.normal(keys[19],shape=(correct.shape[0],2,3,5,))*0.1+0),
             "CovBWPS":(jax.random.normal(keys[20],shape=(1,1,3,2,))*0.1+0),
             "CovBWS":(jax.random.normal(keys[21],shape=(correct.shape[0],2,3,))*0.1+0),
+            "VarCritPS":(jax.random.normal(keys[22],shape=(1,1,1,2,))*0.1+0),
+            "VarCritS":(jax.random.normal(keys[21],shape=(correct.shape[0],2,1,))*0.1+0),
+            "mucritPS":(jax.random.normal(keys[24],shape=(1,1,1,))*0.1+0),
+            "mucritS":(jax.random.normal(keys[25],shape=(correct.shape[0],2,1,))*0.1+0),
+            "critPS":(jax.random.normal(keys[24],shape=(1,1,3,))*0.1+0),
+            "critS":(jax.random.normal(keys[25],shape=(correct.shape[0],2,3,))*0.1+0),
         }
         logdensity = lambda x: Model(**x)[1]
         posteriorPoints = jax.vmap(lambda x: Model(**x)[0])
@@ -438,7 +439,7 @@ def PosteriorFit(ChoiceRes,Rank):
         print("Starting Loop")
         keys = jax.random.split(keys,2)[-1]
         states = inference_loop(kernel,5000,keys,AdaptRes.state,chain)
-        [posteriorPred,PImp,postMu,postVar,SpostMu,SpostVar,NpostMu,NpostVar] = posteriorPoints(states.position)
+        [posteriorPred,PImp,postMu,postVar,SpostMu,SpostVar,NpostMu,NpostVar,postMuT,postVarT] = posteriorPoints(states.position)
         # Post processing transformations
         states.position['posteriorPredictive'] = posteriorPred
         states.position['PosteriorProb'] = PImp 
@@ -459,6 +460,7 @@ def PosteriorFit(ChoiceRes,Rank):
         pickle.dump(states, f)
     
 # Subjects x Runs x Attribute
+# If Objects, change the file
 Res = np.concatenate([np.load("Perdistrep1Collect.npy"),np.load("Perdistrep2Collect.npy")[:,::-1]],0)
 print(Res.shape)
 Ranks = np.concatenate([np.load("PerRankingrep1.npy"),np.load("PerRankingrep2.npy")[:,::-1]],0).transpose(0,2,1)

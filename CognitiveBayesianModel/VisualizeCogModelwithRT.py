@@ -57,13 +57,14 @@ for i in range(Dists.shape[0]):
         for k in range(2):
             for l in range(2):
                 RRTs[j][k][l] += [RT[i,j][EpSoc[i,j]==k+2*l]]
-RTsep = np.array(RRTs).transpose(3,0,1,2,4)[...,None,:]#/RT.mean(-1,keepdims=True)
+RTsep = np.array(RRTs).transpose(3,0,1,2,4)[...,None,:]
 RTM = RT.mean(-1,keepdims=True)
-weight = CoV(data.position['weightS'])#*CoV(data.position['weightPS'][:,:,None,None])
+weight = CoV(data.position['weightS'])
+bias = (data.position['biasS'])*CoV(data.position['biasPS'][:,:,None,None])
 wT = weight
-tNDS = RTsep - (CoVul(data.position['tNDS'][...,None],0,1)*np.median(RT,-1,keepdims=True)[...,None])[...,None,None]
-corRT = CoVul(tNDS*wT[...,None,None,:,None],-1,1)
-
+tNDS = RTsep - (CoVul(data.position['tNDS'][...,None,None],0,1)*np.median(RT,-1,keepdims=True)[...,None])[...,None,None]
+corrs = tNDS*wT[...,None,:,:,None]+bias[...,None,:,:,None]
+corRT = CoVul(corrs,-1,1)
 def makeCov2(A,B):
     A01 = jnp.sqrt(A[0]*A[1])
     A02 = jnp.sqrt(A[0]*A[2])
@@ -80,7 +81,28 @@ def makeCov2(A,B):
     return jnp.array([[a,b,c],[d,e,f],[g,h,i]])
 data.position['VarCritS'] = CoVul(data.position['VarCritS'],0,1)
 corRT2 = jax.vmap(jax.vmap(jax.vmap(jax.vmap(jax.vmap(jax.vmap(jax.vmap(makeCov2,in_axes=[None,-1]),in_axes=[None,-3]),in_axes=[None,-4])))))(data.position['VarCritS'][...,None].repeat(3,axis=-1),corRT)
+corRT2 = (corRT2)/(jnp.sqrt((corRT2**2).sum(-1,keepdims=True))+1e-10)
 print(az.summary({"corrRT":corRT.mean((2,3,-2))}))
+logRT2 = corrs
+SC = np.sqrt(np.sum(logRT2[...,0,0,[0,1],:]**2,-2)).mean((2,3,-1))
+NSC = np.sqrt(np.sum(logRT2[:,:,:,:,1,0,[2,3],:]**2,-2)).mean((2,3,-1))
+BSC = np.sqrt(np.sum(logRT2[...,0,1,[0,1],:]**2,-2)).mean((2,3,-1))
+BNSC = np.sqrt(np.sum(logRT2[:,:,:,:,1,1,[2,3],:]**2,-2)).mean((2,3,-1))
+
+idataw = az.from_dict(posterior={"WI":jnp.clip(SC-NSC,0)}, prior={"WI":jnp.clip((simpnorm(0,4,20000)),0)})
+idatab = az.from_dict(posterior={"BW":jnp.clip(BSC-BNSC,0)}, prior={"BW":jnp.clip((simpnorm(0,4,20000)),0)})
+
+ret = az.plot_bf(idataw,var_name="WI",ref_val=0)
+plt.tight_layout()
+plt.savefig("PCGWIBF")
+plt.close('all')
+print("WI BF",ret)
+ret = az.plot_bf(idatab,var_name="BW",ref_val=0)
+plt.tight_layout()
+plt.savefig("PCGBWBF")
+plt.close('all')
+print("BW BF",ret)
+
 
 az.plot_trace({"corrRT":corRT.mean((2,3,-2))[...,:2]})
 plt.savefig("corrRTSocial_Trace")
@@ -96,6 +118,19 @@ axes = az.plot_density([lowPostProbaz,highPostProbaz],data_labels=['Social','Non
 plt.tight_layout()
 plt.savefig("CorrwithRT")
 plt.close('all')
+import matplotlib as mpl ; mpl.rcParams['text.usetex'] = True
+az.plot_pair({r"$\alpha_{NonSocial \rightarrow Social}$":jnp.median(corRT2[...,0,0,:,0,1],(2,3,4)),r"$\alpha_{Social \rightarrow NonSocial}$":jnp.median(corRT2[...,1,0,:,1,0],(2,3,4))},kind='hexbin',colorbar=True,hexbin_kwargs={"cmap":'turbo'})
+plt.axvline(0,color='black')
+plt.axhline(0,color='black')
+plt.tight_layout()
+plt.savefig("diffHowMuchSocialNonSocial")
+plt.close('all')
+az.plot_pair({r"$\alpha_{Activity \rightarrow Social}$":jnp.median(corRT2[...,0,0,:,0,2],(2,3,4)),r"$\alpha_{Activity\rightarrow NonSocial}$":jnp.median(corRT2[...,1,0,:,1,2],(2,3,4))},kind='hexbin',colorbar=True,hexbin_kwargs={"cmap":'turbo'})
+plt.axvline(0,color='black')
+plt.axhline(0,color='black')
+plt.tight_layout()
+plt.savefig("difActfHowMuchSocialNonSocial")
+plt.close('all')
 
 axNoneSocialS = (data.position['axNonSocialS']*data.position['axNonSocialPS'][...,None])
 axSocialS = (data.position['axSocialS']*data.position['axSocialPS'][...,None])
@@ -103,8 +138,8 @@ axActS = (data.position['axActS']*data.position['axActPS'][...,None])
 olddirectionS = jnp.concatenate([axSocialS[...,None],axNoneSocialS[...,None],axActS[...,None]],-1)
 directionS = jnp.exp(jnp.concatenate([axSocialS[...,None],axNoneSocialS[...,None],axActS[...,None]],-1))
 directionS = (directionS/(directionS**2).sum(-1,keepdims=True))+1e-10
-print(az.summary({"Direction":(jnp.log(directionS[...,0])-jnp.log(directionS[...,1]))}))#[...,0]/directionS[...,1])}))
-az.plot_trace({"Direction":(jnp.log(directionS[...,0])-jnp.log(directionS[...,1]))})#[...,0]/directionS[...,1])})
+print(az.summary({"Direction":(jnp.log(directionS[...,0])-jnp.log(directionS[...,1]))}))
+az.plot_trace({"Direction":(jnp.log(directionS[...,0])-jnp.log(directionS[...,1]))})
 plt.savefig("Direction_Trace")
 plt.close('all')
 
@@ -156,7 +191,6 @@ PSAWIS = jax.vmap(jax.vmap(jax.vmap(jax.vmap(fastinv22))))(SAWIS)
 PNSAWIS = jax.vmap(jax.vmap(jax.vmap(jax.vmap(fastinv22))))(NSAWIS)
 KLSAWI = jax.vmap(jax.vmap(jax.vmap(jax.vmap(KL))))( NSAWIS,SNSWIS,PSNSWIS)
 KLNSAWI = jax.vmap(jax.vmap(jax.vmap(jax.vmap(KL))))(SAWIS ,SNSWIS,PSNSWIS)
-
 EBWS = jax.vmap(jax.vmap(jax.vmap(jax.vmap(jax.vmap(lambda a,b: fastinv(makeCov(a,b)),in_axes=[-1,None],out_axes=-1)))))(VarBWS,CovBWS).mean(-1)
 SNSBWS = EBWS[...,:2,:2]
 SABWS = EBWS[...,[0,0,2,2],[0,2,0,2]].reshape(*EBWS.shape[:-2],2,2)
@@ -169,9 +203,22 @@ KLNSABW = jax.vmap(jax.vmap(jax.vmap(jax.vmap(KL))))(SABWS ,SNSBWS,PSNSBWS)
 lowPostProbaz = az.convert_to_inference_data( np.nanmean(np.array(jnp.concatenate((KLSAWI [...,None],KLSABW[...,None]),-1)),(2,3,)))
 highPostProbaz = az.convert_to_inference_data(np.nanmean(np.array(jnp.concatenate((KLNSAWI[...,None],KLNSABW[...,None]),-1)),(2,3)))
 axes = az.plot_density([lowPostProbaz,highPostProbaz],data_labels=['Social','NonSocial'],shade=0.2)
+plt.tight_layout()
 plt.savefig("KLBW_Trace")
 plt.close('all')
+idataw = az.from_dict(posterior={"WI":jnp.clip(jnp.nanmean((KLSAWI -KLNSAWI),(2,3)),0)}, prior={"WI":jnp.clip((simpnorm(0,4,20000)),0)})
+idatab = az.from_dict(posterior={"BW":jnp.clip(jnp.nanmean((KLSABW -KLNSABW),(2,3)),0)}, prior={"BW":jnp.clip((simpnorm(0,4,20000)),0)})
 
+ret = az.plot_bf(idataw,var_name="WI",ref_val=0)
+plt.tight_layout()
+plt.savefig("KLWIBF")
+plt.close('all')
+print("WI BF",ret)
+ret = az.plot_bf(idatab,var_name="BW",ref_val=0)
+plt.tight_layout()
+plt.savefig("KLBWBF")
+plt.close('all')
+print("BW BF",ret)
 
 PPred = data.position['posteriorPredictive']
 data.position['PosteriorProb'] = data.position['PosteriorProb'][...,:2,:,:]
@@ -200,10 +247,10 @@ plt.tight_layout()
 plt.savefig("CorrAct_Trace.png")
 
 data.position['postVarP'] = data.position['postVar'].mean((2,3,))
-data.position['muS'] = jnp.ones_like(data.position['postMu'])#data.position['muS'][...,None].repeat(2,axis=-1)
-data.position['muPM'] = jnp.ones_like(data.position['postMuP'])#[...,None,None].mean((2,3,-1,-2))
-data.position['sigS'] = 2*jnp.ones_like(data.position['postVar'])#data.position['sigS'][...,None].repeat(2,axis=-1)
-data.position['sigPM'] = 2*jnp.ones_like(data.position['postVarP'])#[...,None,None].mean((2,3,-1,-2))
+data.position['muS'] = jnp.ones_like(data.position['postMu'])
+data.position['muPM'] = jnp.ones_like(data.position['postMuP'])
+data.position['sigS'] = 2*jnp.ones_like(data.position['postVar'])
+data.position['sigPM'] = 2*jnp.ones_like(data.position['postVarP'])
 data.position['diffMu'] = data.position['postMuP'] - data.position['muPM']
 data.position['diffVar'] = data.position['postVarP']/data.position['sigPM']
 data.position['PriorProb'] = jstats.norm.cdf(0,loc=data.position['muS'][...],scale=data.position['sigS'][...])
@@ -372,8 +419,6 @@ plt.tight_layout()
 plt.savefig("CompPriorvPosteriorCDF")
 data.position['logImpcriterionS'] = jnp.log(data.position['PosteriorProb']+1e-10)-jnp.log(data.position['PriorProb'][...,:2,:,:]+1e-10)
 data.position['ImpEpSocS'] = data.position['logImpcriterionS'].mean((2,3,-1))
-data.position['highImpEpSocS'] = data.position['logImpcriterionS'][:,:,Ranks[...,1]>=0.4,:,:].mean((2,-1))
-data.position['lowImpEpSocS'] = data.position['logImpcriterionS'][:,:,Ranks[...,1]<0.4,:,:].mean((2,-1))
 
 WIS = jax.vmap(jax.vmap(jax.vmap(jax.vmap(lambda A,B: jnp.where(B==0,A,0).max())),in_axes=[0,None]),in_axes=[0,None])(PPred,EpSoc)
 BWS = jax.vmap(jax.vmap(jax.vmap(jax.vmap(lambda A,B: jnp.where(B==1,A,0).max())),in_axes=[0,None]),in_axes=[0,None])(PPred,EpSoc)
@@ -397,14 +442,12 @@ data.position['PosteriorselfPM'] = data.position['PosteriorProb'].mean((2,3,-2,-
 data.position['PosteriorEpPM'] = data.position['PosteriorProb'].mean((2,3,-1,-3))
 data.position['PosteriorSocPM'] = data.position['PosteriorProb'].mean((2,3,-1,-2))
 
-
 data.position['PriorEpSocPM'] = data.position['PriorProb'].mean((2,3,-1))
 data.position['PriorselfSocPM'] = data.position['PriorProb'].mean((2,3,-2))
 data.position['PriorselfEpPM'] = data.position['PriorProb'].mean((2,3,-3))
 data.position['PriorselfPM'] = data.position['PriorProb'].mean((2,3,-2,-3))
 data.position['PriorEpPM'] = data.position['PriorProb'].mean((2,3,-1,-3))
 data.position['PriorSocPM'] = data.position['PriorProb'].mean((2,3,-1,-2))
-
 
 
 lowPostProbaz = az.convert_to_inference_data( np.array(data.position['PosteriorEpSocPM'][...,0]))
@@ -429,14 +472,6 @@ axes = az.plot_density([lowPostProbaz,highPostProbaz],data_labels=['Prior','Post
 plt.tight_layout()
 plt.savefig("CompSensitivityPriorvPosterior_Density")
 plt.close('all')
-PriorlowPostProbaz = az.convert_to_inference_data( np.array(1/data.position['lowsigPM'][...,:]))
-PostlowPostProbaz = az.convert_to_inference_data(np.array(1/data.position['lowpostVarP'][...,:]))
-PriorhighPostProbaz = az.convert_to_inference_data( np.array(1/data.position['highsigPM'][...,:]))
-PosthighPostProbaz = az.convert_to_inference_data(np.array(1/data.position['highpostVarP'][...,:]))
-axes = az.plot_density([PostlowPostProbaz,PosthighPostProbaz,PriorlowPostProbaz,PriorhighPostProbaz],data_labels=['Low Posterior','High Posterior','Low Prior','High Prior'],shade=0.2)
-plt.tight_layout()
-plt.savefig("lowCompSensitivityPriorvPosterior_Density",bbox_inches='tight')
-
 plt.close('all')
 fig,ax = plt.subplots(2,5,sharex=True,figsize=(12,10))
 LowhighPostProbaz = az.convert_to_inference_data(np.array(data.position['diffVar'][...,0,:,:]))
@@ -547,8 +582,6 @@ for i in range(5):
     GLods += [[1/GWISOdd.mean(),1/GWINOdd.mean(),1/GBWSOdd.mean(),1/GBWNOdd.mean()]] 
     GLodCIs += [[GWISOdd.std(),GWINOdd.std(),GBWSOdd.std(),GBWNOdd.std()]] 
     LLods += [[LWISOdd,LWINOdd,LBWSOdd,LBWNOdd]] 
-GLodCIs = np.array(GLodCIs)
-
 Ts = jnp.array(Ts).transpose(1,2,3,0)
 plt.close('all')
 low = az.convert_to_inference_data(np.array( Ts[...,1,::-1]))
@@ -566,3 +599,5 @@ az.plot_density([high,low],shade=0.2,data_labels=['Social','NonSocial'],ax=ax)
 ax[-1].set_xlim((-5.5,5.5))
 plt.tight_layout()
 plt.savefig("BWTTests")
+
+
